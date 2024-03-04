@@ -35,7 +35,7 @@ if __name__ == "__main__":
     
     try:
         while True:
-            os.system('cls' if os.name == 'nt' else 'clear')  # Clear the console window
+            os.system('cls' if os.name == 'nt' else 'clear') 
             axis_data = ps5_controller.listen()
             print(axis_data)
     except KeyboardInterrupt:
