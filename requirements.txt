@@ -1,5 +1,4 @@
 RPi.GPIO
-time
-pygame
+inputs
 os
 sys
