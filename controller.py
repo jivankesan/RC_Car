@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import controller
+import controls
 import time
 
 class Car():
@@ -29,7 +29,7 @@ class Car():
         
     
         # Initialize controller
-        self.controller = controller()
+        self.controller = controls.Controller()
 
     @classmethod
     def stop(self):
