@@ -71,7 +71,7 @@ class GYRO:
         # Calculate roll and pitch from the accelerometer data
         roll = math.atan2(Ay, Az) * 57.2958
         pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
-        yaw = math.atan2(Ax, Ay) * 57.2958
+        yaw = math.atan2(Az, Ax) * 57.2958
               
         return Gx, Gy, Gz
 
