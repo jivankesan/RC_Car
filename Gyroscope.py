@@ -74,41 +74,28 @@ class GYRO:
         
         return Gx, Gy, Gz
     
-    def get_orientation(self):
-        """Get the orientation of the robot in degrees using a complementary filter"""
-        Ax, Ay, Az = self.get_accel_data()
-        Gx, Gy, Gz = self.get_gyro_data()
+    def compute_orientation(self):
+        Ax, Ay, Az, Gx, Gy, Gz = self.get_accel_gyro_data()
+        current_time = sleep(0)
+        dt = current_time - self.prev_time
+        self.prev_time = current_time
         
-        # Calculate the angles from the accelerometer
-        roll_acc = math.atan2(Ay, Az) * 180 / math.pi
-        pitch_acc = math.atan2(-Ax, math.sqrt(Ay**2 + Az**2)) * 180 / math.pi
+        # Calculate roll and pitch from the accelerometer data
+        roll = math.atan2(Ay, Az) * 57.2958
+        pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
         
-        # Assuming Gx, Gy, Gz are in degrees per second and dt is in seconds
-        # For the first iteration, assume dt=1, but for real applications, measure the time between calls
-        dt = 0.01  # Adjust based on your loop rate
-        roll_gyro = Gx * dt
-        pitch_gyro = Gy * dt
+        # Integrate gyroscope data to get yaw. This is prone to drift!
+        yaw_rate = Gz
+        yaw = yaw_rate * dt
         
-        # Complementary filter
-        # The ratio here is 0.96 to gyroscope and 0.04 to accelerometer data
-        # These ratios are tunable based on your application's requirements
-        roll = 0.96 * (self.prev_roll + roll_gyro) + 0.04 * roll_acc
-        pitch = 0.96 * (self.prev_pitch + pitch_gyro) + 0.04 * pitch_acc
-        
-        # Store the current orientation to be used in the next iteration
-        self.prev_roll = roll
-        self.prev_pitch = pitch
-        
-        return roll, pitch
-
-    prev_roll = 0  # Static variables to store the previous orientation
-    prev_pitch = 0
-
+        return roll, pitch, yaw
+    
+    
 if __name__ == "__main__":
     mpu = GYRO()
     print("Reading Orientation of the Robot")
     
     while True:
-        roll, pitch = mpu.get_orientation()
-        print("Roll=%.2f° Pitch=%.2f°" % (roll, pitch))
-        sleep(0.01)  # Match the dt in get_orientation
+        roll, pitch, yaw = mpu.compute_orientation()
+        print(f"Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw change: {yaw:.2f}°")
+        sleep(1)
