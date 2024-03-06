@@ -1,4 +1,5 @@
 import smbus
+import math
 from time import sleep
 
 class GYRO:
