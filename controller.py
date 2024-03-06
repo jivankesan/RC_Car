@@ -31,12 +31,10 @@ class Car():
         # Initialize controller
         self.controller = controls.Controller()
 
-    @classmethod
     def stop(self):
         for pin in self.pins:
             GPIO.output(pin, GPIO.LOW)
     
-    @classmethod
     def turn_right(self):
         self.stop()
         time.sleep(.1)
@@ -45,7 +43,6 @@ class Car():
         for pin in self.pwm_pins:
             GPIO.output(pin, GPIO.HIGH)
     
-    @classmethod
     def turn_left(self):
         self.stop()
         time.sleep(.1)
@@ -54,14 +51,12 @@ class Car():
         for pin in self.pwm_pins:
             GPIO.output(pin, GPIO.HIGH)
 
-    @classmethod
     def forward(self):
         self.stop()
         time.sleep(.1)
         for pin in self.pwm_pins:
             GPIO.output(pin, GPIO.HIGH)
-    
-    @classmethod
+   
     def reverse(self):
         self.stop()
         time.sleep(.1)
