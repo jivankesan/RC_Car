@@ -72,14 +72,42 @@ class GYRO:
         Gz = gyro_z / 131.0
         
         return Gx, Gy, Gz
+    
+    def get_orientation(self):
+        """Get the orientation of the robot in degrees using a complementary filter"""
+        Ax, Ay, Az = self.get_accel_data()
+        Gx, Gy, Gz = self.get_gyro_data()
+        
+        # Calculate the angles from the accelerometer
+        roll_acc = math.atan2(Ay, Az) * 180 / math.pi
+        pitch_acc = math.atan2(-Ax, math.sqrt(Ay**2 + Az**2)) * 180 / math.pi
+        
+        # Assuming Gx, Gy, Gz are in degrees per second and dt is in seconds
+        # For the first iteration, assume dt=1, but for real applications, measure the time between calls
+        dt = 0.01  # Adjust based on your loop rate
+        roll_gyro = Gx * dt
+        pitch_gyro = Gy * dt
+        
+        # Complementary filter
+        # The ratio here is 0.96 to gyroscope and 0.04 to accelerometer data
+        # These ratios are tunable based on your application's requirements
+        roll = 0.96 * (self.prev_roll + roll_gyro) + 0.04 * roll_acc
+        pitch = 0.96 * (self.prev_pitch + pitch_gyro) + 0.04 * pitch_acc
+        
+        # Store the current orientation to be used in the next iteration
+        self.prev_roll = roll
+        self.prev_pitch = pitch
+        
+        return roll, pitch
+
+    prev_roll = 0  # Static variables to store the previous orientation
+    prev_pitch = 0
 
 if __name__ == "__main__":
     mpu = GYRO()
-    print("Reading Data of Gyroscope and Accelerometer")
+    print("Reading Orientation of the Robot")
     
     while True:
-        Ax, Ay, Az = mpu.get_accel_data()
-        Gx, Gy, Gz = mpu.get_gyro_data()
-        
-        print("Gx=%.2f°/s Gy=%.2f°/s Gz=%.2f°/s Ax=%.2f g Ay=%.2f g Az=%.2f g" % (Gx, Gy, Gz, Ax, Ay, Az))
-        sleep(1)
+        roll, pitch = mpu.get_orientation()
+        print("Roll=%.2f° Pitch=%.2f°" % (roll, pitch))
+        sleep(0.01)  # Match the dt in get_orientation
