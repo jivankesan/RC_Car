@@ -1,11 +1,11 @@
 import smbus
-import math
 from time import sleep
+import math
 
 class GYRO:
     def __init__(self, device_address=0x68):
         self.device_address = device_address
-        self.bus = smbus.SMBus(1)  # or bus = smbus.SMBus(0) for older version boards
+        self.bus = smbus.SMBus(1)
         
         # MPU6050 Registers and their Addresses
         self.PWR_MGMT_1 = 0x6B
@@ -21,31 +21,24 @@ class GYRO:
         self.GYRO_ZOUT_H = 0x47
         
         self.init_mpu()
+        self.prev_time = sleep(0)
     
     def init_mpu(self):
         """Initialize the MPU6050 with default settings"""
-        # Write to sample rate register
         self.bus.write_byte_data(self.device_address, self.SMPLRT_DIV, 7)
-        
-        # Write to power management register to wake the MPU6050
         self.bus.write_byte_data(self.device_address, self.PWR_MGMT_1, 1)
-        
-        # Write to Configuration register
         self.bus.write_byte_data(self.device_address, self.CONFIG, 0)
-        
-        # Write to Gyro configuration register
         self.bus.write_byte_data(self.device_address, self.GYRO_CONFIG, 24)
-        
-        # Write to interrupt enable register
         self.bus.write_byte_data(self.device_address, self.INT_ENABLE, 1)
     
     def read_raw_data(self, addr):
-        """Read raw data from the specified address"""
         high = self.bus.read_byte_data(self.device_address, addr)
         low = self.bus.read_byte_data(self.device_address, addr+1)
         
+        # concatenate higher and lower value
         value = ((high << 8) | low)
         
+        # to get signed value from mpu6050
         if value > 32768:
             value -= 65536
         return value
@@ -84,8 +77,7 @@ class GYRO:
         yaw = yaw_rate * dt
         
         return roll, pitch, yaw
-    
-    
+
 if __name__ == "__main__":
     mpu = GYRO()
     print("Reading Orientation of the Robot")
