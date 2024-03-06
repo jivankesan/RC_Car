@@ -2,6 +2,8 @@ import pygame
 import os
 import sys
 
+os.environ["SDL_VIDEODRIVER"] = "dummy" 
+
 class Controller:
     def __init__(self):
         """Initialize the joystick components"""
