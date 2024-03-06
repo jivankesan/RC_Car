@@ -1,5 +1,5 @@
 import smbus
-from time import sleep
+import time 
 import math
 
 class GYRO:
@@ -64,15 +64,14 @@ class GYRO:
     
     def compute_orientation(self):
         Ax, Ay, Az, Gx, Gy, Gz = self.get_accel_gyro_data()
-        current_time = sleep(0)
+        current_time = time.time()
         dt = current_time - self.prev_time
         self.prev_time = current_time
         
         # Calculate roll and pitch from the accelerometer data
         roll = math.atan2(Ay, Az) * 57.2958
         pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
-        
-        # Integrate gyroscope data to get yaw. This is prone to drift!
+
         yaw_rate = Gz
         yaw = yaw_rate * dt
         
@@ -85,4 +84,4 @@ if __name__ == "__main__":
     while True:
         roll, pitch, yaw = mpu.compute_orientation()
         print(f"Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw change: {yaw:.2f}°")
-        sleep(1)
+        time.sleep(1)
