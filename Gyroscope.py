@@ -68,12 +68,22 @@ class GYRO:
         dt = current_time - self.prev_time
         self.prev_time = current_time
         
-        # Calculate roll and pitch from the accelerometer data
-        roll = math.atan2(Ay, Az) * 57.2958
-        pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
-        yaw = math.atan2(Az, Ax) * 57.2958
-              
-        return roll, pitch, yaw
+        # Adjustments for standing up orientation
+        # Pitch (forward/backward tilt) - Rotation around Y-axis
+        pitch = math.atan2(Az, math.sqrt(Ax ** 2 + Ay ** 2)) * (180 / math.pi)
+        
+        # Roll (side to side tilt) - Rotation around X-axis
+        roll = math.atan2(-Ay, Ax) * (180 / math.pi)  # Note: Ay is negated if X-axis points down
+        
+        # Yaw - Not directly calculable from accelerometer data
+        # Assuming Gz provides rate of change of yaw
+        yaw_rate = Gz
+        yaw_change = yaw_rate * dt  # Assuming Gz in radians/s, dt in seconds
+        
+        # Assuming yaw_change is cumulative, you might need a method to track total yaw over time
+        # This example just provides the change since last measurement
+
+        return roll, pitch, yaw_change
 
 if __name__ == "__main__":
     mpu = GYRO()
