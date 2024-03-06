@@ -73,7 +73,7 @@ class GYRO:
         pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
         yaw = math.atan2(Ax, Ay) * 57.2958
               
-        return roll, pitch, yaw
+        return Gx, Gy, Gz
 
 if __name__ == "__main__":
     mpu = GYRO()
