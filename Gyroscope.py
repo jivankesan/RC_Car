@@ -71,10 +71,8 @@ class GYRO:
         # Calculate roll and pitch from the accelerometer data
         roll = math.atan2(Ay, Az) * 57.2958
         pitch = math.atan2(-Ax, math.sqrt(Ay ** 2 + Az ** 2)) * 57.2958
-
-        yaw_rate = Gz
-        yaw = yaw_rate * dt
-        
+        yaw = math.atan2(Ax, Ay) * 57.2958
+              
         return roll, pitch, yaw
 
 if __name__ == "__main__":
@@ -83,5 +81,5 @@ if __name__ == "__main__":
     
     while True:
         roll, pitch, yaw = mpu.compute_orientation()
-        print(f"Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw change: {yaw:.2f}°")
+        print(f"Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
         time.sleep(1)
