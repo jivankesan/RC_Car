@@ -87,7 +87,7 @@ class Car():
 
 if __name__ == "__main__":
     car = Car()
-    gyro = Gyroscope()
+    gyro = Gyroscope.GYRO()
     try:
         while True:
             car.drive(1)
