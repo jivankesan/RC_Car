@@ -91,7 +91,9 @@ if __name__ == "__main__":
     try:
         while True:
             car.drive(1)
-            time.sleep(5)
+            time.sleep(10)
+            roll, pitch, yaw = gyro.get_orientation()
+            print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
             
             
     except KeyboardInterrupt:
