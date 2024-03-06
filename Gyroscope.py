@@ -21,7 +21,7 @@ class GYRO:
         self.GYRO_ZOUT_H = 0x47
         
         self.init_mpu()
-        self.prev_time = sleep(0)
+        self.prev_time = time.time()
     
     def init_mpu(self):
         """Initialize the MPU6050 with default settings"""
