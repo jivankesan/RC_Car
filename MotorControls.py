@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import controls
 import time
+import Gyroscope
 
 class Car():
     def __init__(self):
@@ -21,16 +22,13 @@ class Car():
         self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_RB, self.PWM_RF]
         self.dir_L = [self.DIR_LB, self.DIR_LF]
         self.dir_R = [self.DIR_RB, self.DIR_RF]
-        
-        self.prev = []
+ 
 
         # Setup GPIO pins
         GPIO.setmode(GPIO.BOARD)
         for pin in self.pins:
             GPIO.setup(pin, GPIO.OUT)    
-    
-        # Initialize controller
-        self.controller = controls.Controller()
+
 
     def stop(self):
         for pin in self.pins:
@@ -69,39 +67,33 @@ class Car():
             GPIO.output(pin, GPIO.HIGH)
         
         
-    def drive_joystick(self, axis_data):
+    def drive(self, axis_data):
     
         # mapping forwards backwards movement
-        if axis_data[0] < -0.9:  # Assume joystick left
+        if axis_data == 2:  
             self.turn_left()
         
-        elif axis_data[0] > 0.9:  # Assume joystick right
+        elif axis_data == 3:  
             self.turn_right()
             
-        elif axis_data[5] > 0.9:  # Assume only forward
+        elif axis_data == 0: 
             self.forward()
         
-        elif axis_data[4] > 0.9: # assume only reverse
+        elif axis_data == 1: 
             self.reverse()
         
-        else: self.stop() # assume nothing pressed
-
-
-    def update(self):
-        # Replace this with an event listener
-        axis_data = self.controller.listen()
-        print(axis_data)
-        # Drive the car based on controller input
-        if self.prev != axis_data:
-            self.drive_joystick(axis_data)
-        self.prev = axis_data
+        else: self.stop() 
 
 
 if __name__ == "__main__":
     car = Car()
+    gyro = Gyroscope()
     try:
         while True:
-            car.update()
+            car.drive(1)
+            time.sleep(5)
+            
+            
     except KeyboardInterrupt:
         # Cleanup GPIO when program is interrupted
         GPIO.cleanup()
