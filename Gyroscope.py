@@ -78,8 +78,9 @@ class GYRO:
 if __name__ == "__main__":
     mpu = GYRO()
     print("Reading Orientation of the Robot")
+    initial_roll, initial_pitch, initial_yaw = mpu.compute_orientation()
     
     while True:
         roll, pitch, yaw = mpu.compute_orientation()
-        print(f"Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
+        print(f"Roll: {roll - initial_roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
         time.sleep(1)
