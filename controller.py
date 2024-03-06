@@ -28,6 +28,8 @@ class Car():
         GPIO.setmode(GPIO.BOARD)
         for pin in self.pins:
             GPIO.setup(pin, GPIO.OUT)
+
+        print("pins set up")
         
     
         # Initialize controller
