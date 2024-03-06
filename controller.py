@@ -17,7 +17,7 @@ class Car():
         self.PWM_LF = 16
         self.DIR_LF = 18
 
-        self.pins = [self.PWM_RF, self.DIR_RF, self.PWM_LB, self.DIR_LB, self.PWM_RF, self.DIR_RF, self.PWM_LF, self.DIR_LF]
+        self.pins = [self.PWM_RF, self.DIR_RF, self.PWM_LB, self.DIR_LB, self.PWM_RB, self.DIR_RB, self.PWM_LF, self.DIR_LF]
         self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_RB, self.PWM_RF]
         self.dir_L = [self.DIR_LB, self.DIR_LF]
         self.dir_R = [self.DIR_RB, self.DIR_RF]
