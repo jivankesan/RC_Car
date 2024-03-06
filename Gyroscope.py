@@ -1,11 +1,11 @@
-import smbus
-import time 
 import math
+import smbus
+from time import sleep
 
 class GYRO:
     def __init__(self, device_address=0x68):
         self.device_address = device_address
-        self.bus = smbus.SMBus(1)
+        self.bus = smbus.SMBus(1)  # or bus = smbus.SMBus(0) for older version boards
         
         # MPU6050 Registers and their Addresses
         self.PWR_MGMT_1 = 0x6B
@@ -21,76 +21,94 @@ class GYRO:
         self.GYRO_ZOUT_H = 0x47
         
         self.init_mpu()
-        self.prev_time = time.time()
     
     def init_mpu(self):
         """Initialize the MPU6050 with default settings"""
+        # Write to sample rate register
         self.bus.write_byte_data(self.device_address, self.SMPLRT_DIV, 7)
+        
+        # Write to power management register to wake the MPU6050
         self.bus.write_byte_data(self.device_address, self.PWR_MGMT_1, 1)
+        
+        # Write to Configuration register
         self.bus.write_byte_data(self.device_address, self.CONFIG, 0)
+        
+        # Write to Gyro configuration register
         self.bus.write_byte_data(self.device_address, self.GYRO_CONFIG, 24)
+        
+        # Write to interrupt enable register
         self.bus.write_byte_data(self.device_address, self.INT_ENABLE, 1)
     
     def read_raw_data(self, addr):
+        """Read raw data from the specified address"""
         high = self.bus.read_byte_data(self.device_address, addr)
         low = self.bus.read_byte_data(self.device_address, addr+1)
         
-        # concatenate higher and lower value
         value = ((high << 8) | low)
         
-        # to get signed value from mpu6050
         if value > 32768:
             value -= 65536
         return value
     
-    def get_accel_gyro_data(self):
+    def get_accel_data(self):
+        """Get acceleration data"""
         acc_x = self.read_raw_data(self.ACCEL_XOUT_H)
         acc_y = self.read_raw_data(self.ACCEL_YOUT_H)
         acc_z = self.read_raw_data(self.ACCEL_ZOUT_H)
-        
-        gyro_x = self.read_raw_data(self.GYRO_XOUT_H)
-        gyro_y = self.read_raw_data(self.GYRO_YOUT_H)
-        gyro_z = self.read_raw_data(self.GYRO_ZOUT_H)
         
         Ax = acc_x / 16384.0
         Ay = acc_y / 16384.0
         Az = acc_z / 16384.0
         
+        return Ax, Ay, Az
+    
+    def get_gyro_data(self):
+        """Get gyroscope data"""
+        gyro_x = self.read_raw_data(self.GYRO_XOUT_H)
+        gyro_y = self.read_raw_data(self.GYRO_YOUT_H)
+        gyro_z = self.read_raw_data(self.GYRO_ZOUT_H)
+        
         Gx = gyro_x / 131.0
         Gy = gyro_y / 131.0
         Gz = gyro_z / 131.0
         
-        return Ax, Ay, Az, Gx, Gy, Gz
+        return Gx, Gy, Gz
     
-    def compute_orientation(self):
-        Ax, Ay, Az, Gx, Gy, Gz = self.get_accel_gyro_data()
-        current_time = time.time()
-        dt = current_time - self.prev_time
-        self.prev_time = current_time
+    def get_orientation(self):
+        """Get the orientation of the robot in degrees using a complementary filter"""
+        Ax, Ay, Az = self.get_accel_data()
+        Gx, Gy, Gz = self.get_gyro_data()
         
-        # Adjustments for standing up orientation
-        # Pitch (forward/backward tilt) - Rotation around Y-axis
-        pitch = math.atan2(Az, math.sqrt(Ax ** 2 + Ay ** 2)) * (180 / math.pi)
+        # Calculate the angles from the accelerometer
+        roll_acc = math.atan2(Ay, Az) * 180 / math.pi
+        pitch_acc = math.atan2(-Ax, math.sqrt(Ay**2 + Az**2)) * 180 / math.pi
         
-        # Roll (side to side tilt) - Rotation around X-axis
-        roll = math.atan2(-Ay, Ax) * (180 / math.pi)  # Note: Ay is negated if X-axis points down
+        # Assuming Gx, Gy, Gz are in degrees per second and dt is in seconds
+        # For the first iteration, assume dt=1, but for real applications, measure the time between calls
+        dt = 0.01  # Adjust based on your loop rate
+        roll_gyro = Gx * dt
+        pitch_gyro = Gy * dt
         
-        # Yaw - Not directly calculable from accelerometer data
-        # Assuming Gz provides rate of change of yaw
-        yaw_rate = Gz
-        yaw_change = yaw_rate * dt  # Assuming Gz in radians/s, dt in seconds
+        # Complementary filter
+        # The ratio here is 0.96 to gyroscope and 0.04 to accelerometer data
+        # These ratios are tunable based on your application's requirements
+        roll = 0.96 * (self.prev_roll + roll_gyro) + 0.04 * roll_acc
+        pitch = 0.96 * (self.prev_pitch + pitch_gyro) + 0.04 * pitch_acc
         
-        # Assuming yaw_change is cumulative, you might need a method to track total yaw over time
-        # This example just provides the change since last measurement
+        # Store the current orientation to be used in the next iteration
+        self.prev_roll = roll
+        self.prev_pitch = pitch
+        
+        return roll, pitch
 
-        return roll, pitch, yaw_change
+    prev_roll = 0  # Static variables to store the previous orientation
+    prev_pitch = 0
 
 if __name__ == "__main__":
     mpu = GYRO()
     print("Reading Orientation of the Robot")
-    initial_roll, initial_pitch, initial_yaw = mpu.compute_orientation()
     
     while True:
-        roll, pitch, yaw = mpu.compute_orientation()
-        print(f"Roll: {roll - initial_roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
-        time.sleep(1)
+        roll, pitch = mpu.get_orientation()
+        print("Roll=%.2f° Pitch=%.2f°" % (roll, pitch))
+        sleep(0.01)  # Match the dt in get_orientation
