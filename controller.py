@@ -91,7 +91,6 @@ class Car():
     def update(self):
         # Replace this with an event listener
         axis_data = self.controller.listen()
-        print(axis_data)
         # Drive the car based on controller input
         if self.prev != axis_data:
             self.drive(axis_data)
