@@ -21,6 +21,8 @@ class Car():
         self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_RB, self.PWM_RF]
         self.dir_L = [self.DIR_LB, self.DIR_LF]
         self.dir_R = [self.DIR_RB, self.DIR_RF]
+        
+        self.prev = []
 
         # Setup GPIO pins
         GPIO.setmode(GPIO.BOARD)
@@ -90,7 +92,9 @@ class Car():
         # Replace this with an event listener
         axis_data = self.controller.listen()
         # Drive the car based on controller input
-        self.drive(axis_data)
+        if self.prev != axis_data:
+            self.drive(axis_data)
+        self.prev = axis_data
 
 
 if __name__ == "__main__":
