@@ -1,6 +1,7 @@
 import math
 import smbus
 from time import sleep
+import time
 
 class GYRO:
     def __init__(self, device_address=0x68):
@@ -48,21 +49,26 @@ class GYRO:
         
         return Gx, Gy, Gz
     
-    def get_orientation(self, dt=0.01):
+    def get_orientation(self, current_time):
         """Estimate the orientation based on gyroscope data"""
         Gx, Gy, Gz = self.get_gyro_data()
         
+        # Calculate time difference
+        dt = current_time - self.prev_time
+        self.prev_time = current_time
+        
         # Update orientation based on gyroscope data
-        roll = self.prev_roll + Gx * dt
-        pitch = self.prev_pitch + Gy * dt
-        yaw = self.prev_yaw + Gz * dt
+        self.roll += Gx * dt
+        self.pitch += Gy * dt
+        self.yaw += Gz * dt
         
-        # Update the previous orientation
-        self.prev_roll = roll
-        self.prev_pitch = pitch
-        self.prev_yaw = yaw
-        
-        return roll, pitch, yaw
+        return self.roll, self.pitch, self.yaw
+
+    # Initialize orientation and time
+    roll = 0.0
+    pitch = 0.0
+    yaw = 0.0
+    prev_time = time.time()
 
     prev_roll = 0
     prev_pitch = 0
@@ -72,7 +78,11 @@ if __name__ == "__main__":
     gyro = GYRO()
     print("Reading Gyroscope Orientation of the Device")
     
-    while True:
-        roll, pitch, yaw = gyro.get_orientation()
-        print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
-        sleep(0.01)  # Synchronization delay with dt in get_orientation
+    try:
+        while True:
+            current_time = time.time()
+            roll, pitch, yaw = gyro.get_orientation(current_time)
+            print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
+            time.sleep(0.01)  # Small delay to prevent spamming
+    except KeyboardInterrupt:
+        print("Program terminated.")
