@@ -105,10 +105,10 @@ if __name__ == "__main__":
 
    import time
    import pigpio
-   
 
-   PWM_GPIO = 22
+   PWM_GPIO = 25
    RUN_TIME = 10.0
+   SAMPLE_TIME = 2.0
 
    pi = pigpio.pi()
 
@@ -117,6 +117,8 @@ if __name__ == "__main__":
    start = time.time()
 
    while (time.time() - start) < RUN_TIME:
+
+      time.sleep(SAMPLE_TIME)
 
       f = p.frequency()
       pw = p.pulse_width()
