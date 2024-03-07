@@ -1,7 +1,6 @@
 import math
 import smbus
-from time import sleep
-import time
+from time import sleep, time
 
 class GYRO:
     def __init__(self, device_address=0x68):
@@ -14,12 +13,21 @@ class GYRO:
         self.CONFIG = 0x1A
         self.GYRO_CONFIG = 0x1B
         self.INT_ENABLE = 0x38
+        self.ACCEL_XOUT_H = 0x3B
+        self.ACCEL_YOUT_H = 0x3D
+        self.ACCEL_ZOUT_H = 0x3F
         self.GYRO_XOUT_H = 0x43
         self.GYRO_YOUT_H = 0x45
         self.GYRO_ZOUT_H = 0x47
         
         self.init_mpu()
-    
+        
+        # Initialize orientation and time
+        self.roll = 0.0
+        self.pitch = 0.0
+        self.yaw = 0.0
+        self.prev_time = time()
+        
     def init_mpu(self):
         """Initialize the MPU6050"""
         self.bus.write_byte_data(self.device_address, self.SMPLRT_DIV, 7)
@@ -92,25 +100,15 @@ class GYRO:
         
         return self.roll, self.pitch, self.yaw
 
-    # Initialize orientation and time
-    roll = 0.0
-    pitch = 0.0
-    yaw = 0.0
-    prev_time = time.time()
-
-    prev_roll = 0
-    prev_pitch = 0
-    prev_yaw = 0
-
 if __name__ == "__main__":
     gyro = GYRO()
     print("Reading Gyroscope Orientation of the Device")
     
     try:
         while True:
-            current_time = time.time()
+            current_time = time()
             roll, pitch, yaw = gyro.get_orientation(current_time)
             print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
-            time.sleep(0.01)  # Small delay to prevent spamming
+            sleep(0.01)  # Small delay to prevent spamming
     except KeyboardInterrupt:
         print("Program terminated.")
