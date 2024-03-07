@@ -49,6 +49,19 @@ class GYRO:
         
         return Gx, Gy, Gz
     
+    def get_accel_data(self):
+        """Get accelerometer data"""
+        accel_x = self.read_raw_data(self.ACCEL_XOUT_H)
+        accel_y = self.read_raw_data(self.ACCEL_YOUT_H)
+        accel_z = self.read_raw_data(self.ACCEL_ZOUT_H)
+        
+        # Gravity is 9.81 m/s^2, and the sensor's full scale range is ±2g with 16384 as scale factor
+        Ax = accel_x / 16384.0
+        Ay = accel_y / 16384.0
+        Az = accel_z / 16384.0
+        
+        return Ax, Ay, Az
+    
     def complementary_filter(self, gyro_angle, accel_angle, alpha=0.98):
         """Apply complementary filter to combine gyro and accel data"""
         return alpha * gyro_angle + (1 - alpha) * accel_angle
