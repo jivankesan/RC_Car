@@ -61,8 +61,9 @@ class GYRO:
         self.roll += Gx * dt
         self.pitch += Gy * dt
         self.yaw += Gz * dt
+        yaw = Gz
         
-        return self.roll, self.pitch, self.yaw
+        return self.roll, self.pitch, yaw
 
     # Initialize orientation and time
     roll = 0.0
