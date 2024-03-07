@@ -49,18 +49,33 @@ class GYRO:
         
         return Gx, Gy, Gz
     
+    def complementary_filter(self, gyro_angle, accel_angle, alpha=0.98):
+        """Apply complementary filter to combine gyro and accel data"""
+        return alpha * gyro_angle + (1 - alpha) * accel_angle
+    
     def get_orientation(self, current_time):
-        """Estimate the orientation based on gyroscope data"""
+        """Estimate the orientation based on gyroscope and accelerometer data"""
         Gx, Gy, Gz = self.get_gyro_data()
+        Ax, Ay, Az = self.get_accel_data()
+        
+        # Calculate accelerometer angles
+        accel_roll = math.atan2(Ay, Az) * 57.2958
+        accel_pitch = math.atan2(-Ax, math.sqrt(Ay**2 + Az**2)) * 57.2958
         
         # Calculate time difference
         dt = current_time - self.prev_time
         self.prev_time = current_time
         
-        # Update orientation based on gyroscope data
-        self.roll += Gx * dt
-        self.pitch += Gy * dt
-        self.yaw += Gz * dt - 0.001
+        # Update orientation based on gyroscope data (integrate gyro rates to angles)
+        gyro_roll = self.roll + Gx * dt
+        gyro_pitch = self.pitch + Gy * dt
+        
+        # Apply complementary filter to combine accelerometer and gyroscope data for roll and pitch
+        self.roll = self.complementary_filter(gyro_roll, accel_roll, alpha=0.96)
+        self.pitch = self.complementary_filter(gyro_pitch, accel_pitch, alpha=0.96)
+        
+        # Yaw can be calculated using gyro data only since it's hard to obtain from accelerometer without a magnetometer
+        self.yaw += Gz * dt
         
         return self.roll, self.pitch, self.yaw
 
