@@ -90,10 +90,11 @@ if __name__ == "__main__":
     gyro = Gyroscope.GYRO()
     try:
         while True:
-            car.drive(0)
-            time.sleep(40)
             car.drive(2)
             time.sleep(1.932)
+            car.drive(0)
+            time.sleep(40)
+            
             car.drive(0)
             time.sleep(10)
             roll, pitch, yaw = gyro.get_orientation(time.time())
