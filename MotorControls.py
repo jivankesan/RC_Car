@@ -93,9 +93,8 @@ if __name__ == "__main__":
             car.drive(2)
             time.sleep(1.932)
             car.drive(0)
-            time.sleep(40)
-            
-            car.drive(0)
+            time.sleep(10)
+            car.drive(1)
             time.sleep(10)
             roll, pitch, yaw = gyro.get_orientation(time.time())
             print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
