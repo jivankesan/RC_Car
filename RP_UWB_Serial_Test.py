@@ -1,7 +1,7 @@
 import serial
 
 # Open the serial port
-ser = serial.Serial('/dev/ttyUSB0', 9600)  # Adjust port and baud rate as needed
+ser = serial.Serial('/dev/ttyUSB0', 115200)  # Adjust port and baud rate as needed
 
 try:
     while True:
