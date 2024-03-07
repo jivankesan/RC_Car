@@ -105,14 +105,14 @@ if __name__ == "__main__":
 
    import time
    import pigpio
-   import read_PWM
+   
 
    PWM_GPIO = 22
    RUN_TIME = 10.0
 
    pi = pigpio.pi()
 
-   p = read_PWM.reader(pi, PWM_GPIO)
+   p = reader(pi, PWM_GPIO)
 
    start = time.time()
 
