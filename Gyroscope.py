@@ -60,7 +60,7 @@ class GYRO:
         # Update orientation based on gyroscope data
         self.roll += Gx * dt
         self.pitch += Gy * dt
-        self.yaw += Gz * dt - 0.1
+        self.yaw += Gz * dt - 0.001
         
         return self.roll, self.pitch, self.yaw
 
