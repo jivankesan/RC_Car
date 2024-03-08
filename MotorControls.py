@@ -4,6 +4,7 @@ import time
 import Gyroscope
 import pigpio
 import MotorEncoder
+import serial
 
 class Car():
     def __init__(self):
@@ -94,6 +95,8 @@ if __name__ == "__main__":
     RUN_TIME = 60.0
     SAMPLE_TIME = 0.01
     
+    ser = serial.Serial('/dev/ttyUSB0', 115200)  # Adjust port and baud rate as needed
+
     pi = pigpio.pi()
     pi2 = pigpio.pi()
     p = MotorEncoder.reader(pi, Pin1)
@@ -106,6 +109,8 @@ if __name__ == "__main__":
             while (p.pulse_count < 4685*(2/0.471234)):
                 distance = (p.pulse_count/4685)*0.471234
                 print(distance)
+                data = ser.readline().decode().strip()
+                print("Received:", data)  # Print received data
                 time.sleep(0.2)
             print(p2.pulse_count)
             print(p.pulse_count)
