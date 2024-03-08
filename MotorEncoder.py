@@ -106,9 +106,9 @@ if __name__ == "__main__":
    import time
    import pigpio
 
-   PWM_GPIO = 22
+   PWM_GPIO = 25
    RUN_TIME = 60.0
-   SAMPLE_TIME = 2.0
+   SAMPLE_TIME = 0.01
 
    pi = pigpio.pi()
 
