@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    while (time.time() - start) < RUN_TIME:
+    while (p.pulse_count < 4720):
         time.sleep(SAMPLE_TIME)
         f = p.frequency()
         pw = p.pulse_width()
