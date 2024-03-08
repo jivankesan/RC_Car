@@ -1,132 +1,133 @@
 #!/usr/bin/env python
 
-# read_PWM.py
-# 2015-12-08
-# Public Domain
+import pigpio
 
-import time
-import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
+class decoder:
 
-class reader:
-   """
-   A class to read PWM pulses and calculate their frequency
-   and duty cycle.  The frequency is how often the pulse
-   happens per second.  The duty cycle is the percentage of
-   pulse high time per cycle.
-   """
-   def __init__(self, pi, gpio, weighting=0.0):
+   """Class to decode mechanical rotary encoder pulses."""
+
+   def __init__(self, pi, gpioA, gpioB, callback):
+
       """
-      Instantiate with the Pi and gpio of the PWM signal
-      to monitor.
+      Instantiate the class with the pi and gpios connected to
+      rotary encoder contacts A and B.  The common contact
+      should be connected to ground.  The callback is
+      called when the rotary encoder is turned.  It takes
+      one parameter which is +1 for clockwise and -1 for
+      counterclockwise.
 
-      Optionally a weighting may be specified.  This is a number
-      between 0 and 1 and indicates how much the old reading
-      affects the new reading.  It defaults to 0 which means
-      the old reading has no effect.  This may be used to
-      smooth the data.
+      EXAMPLE
+
+      import time
+      import pigpio
+
+      import rotary_encoder
+
+      pos = 0
+
+      def callback(way):
+
+         global pos
+
+         pos += way
+
+         print("pos={}".format(pos))
+
+      pi = pigpio.pi()
+
+      decoder = rotary_encoder.decoder(pi, 7, 8, callback)
+
+      time.sleep(300)
+
+      decoder.cancel()
+
+      pi.stop()
+
       """
+
       self.pi = pi
-      self.gpio = gpio
+      self.gpioA = gpioA
+      self.gpioB = gpioB
+      self.callback = callback
 
-      if weighting < 0.0:
-         weighting = 0.0
-      elif weighting > 0.99:
-         weighting = 0.99
+      self.levA = 0
+      self.levB = 0
 
-      self._new = 1.0 - weighting # Weighting for new reading.
-      self._old = weighting       # Weighting for old reading.
+      self.lastGpio = None
 
-      self._high_tick = None
-      self._period = None
-      self._high = None
+      self.pi.set_mode(gpioA, pigpio.INPUT)
+      self.pi.set_mode(gpioB, pigpio.INPUT)
 
-      pi.set_mode(gpio, pigpio.INPUT)
+      self.pi.set_pull_up_down(gpioA, pigpio.PUD_UP)
+      self.pi.set_pull_up_down(gpioB, pigpio.PUD_UP)
 
-      self._cb = pi.callback(gpio, pigpio.EITHER_EDGE, self._cbf)
+      self.cbA = self.pi.callback(gpioA, pigpio.EITHER_EDGE, self._pulse)
+      self.cbB = self.pi.callback(gpioB, pigpio.EITHER_EDGE, self._pulse)
 
-   def _cbf(self, gpio, level, tick):
+   def _pulse(self, gpio, level, tick):
 
-      if level == 1:
-
-         if self._high_tick is not None:
-            t = pigpio.tickDiff(self._high_tick, tick)
-
-            if self._period is not None:
-               self._period = (self._old * self._period) + (self._new * t)
-            else:
-               self._period = t
-
-         self._high_tick = tick
-
-      elif level == 0:
-
-         if self._high_tick is not None:
-            t = pigpio.tickDiff(self._high_tick, tick)
-
-            if self._high is not None:
-               self._high = (self._old * self._high) + (self._new * t)
-            else:
-               self._high = t
-
-   def frequency(self):
       """
-      Returns the PWM frequency.
+      Decode the rotary encoder pulse.
+
+                   +---------+         +---------+      0
+                   |         |         |         |
+         A         |         |         |         |
+                   |         |         |         |
+         +---------+         +---------+         +----- 1
+
+             +---------+         +---------+            0
+             |         |         |         |
+         B   |         |         |         |
+             |         |         |         |
+         ----+         +---------+         +---------+  1
       """
-      if self._period is not None:
-         return 1000000.0 / self._period
+
+      if gpio == self.gpioA:
+         self.levA = level
       else:
-         return 0.0
+         self.levB = level;
 
-   def pulse_width(self):
-      """
-      Returns the PWM pulse width in microseconds.
-      """
-      if self._high is not None:
-         return self._high
-      else:
-         return 0.0
+      if gpio != self.lastGpio: # debounce
+         self.lastGpio = gpio
 
-   def duty_cycle(self):
-      """
-      Returns the PWM duty cycle percentage.
-      """
-      if self._high is not None:
-         return 100.0 * self._high / self._period
-      else:
-         return 0.0
+         if   gpio == self.gpioA and level == 1:
+            if self.levB == 1:
+               self.callback(1)
+         elif gpio == self.gpioB and level == 1:
+            if self.levA == 1:
+               self.callback(-1)
 
    def cancel(self):
+
       """
-      Cancels the reader and releases resources.
+      Cancel the rotary encoder decoder.
       """
-      self._cb.cancel()
+
+      self.cbA.cancel()
+      self.cbB.cancel()
 
 if __name__ == "__main__":
 
    import time
    import pigpio
 
-   PWM_GPIO = 25
-   RUN_TIME = 10.0
-   SAMPLE_TIME = 2.0
+   pos = 0
+
+   def callback(way):
+
+      global pos
+
+      pos += way
+
+      print("pos={}".format(pos))
 
    pi = pigpio.pi()
 
-   p = reader(pi, PWM_GPIO)
+   decoder = decoder(pi, 7, 8, callback)
 
-   start = time.time()
+   time.sleep(300)
 
-   while (time.time() - start) < RUN_TIME:
-
-      time.sleep(SAMPLE_TIME)
-
-      f = p.frequency()
-      pw = p.pulse_width()
-      dc = p.duty_cycle()
-     
-      print("f={:.1f} pw={} dc={:.2f}".format(f, int(pw+0.5), dc))
-
-   p.cancel()
+   decoder.cancel()
 
    pi.stop()
 
