@@ -1,5 +1,6 @@
 import time
 import pigpio  # http://abyz.co.uk/rpi/pigpio/python.html
+import RPi.GPIO as GPIO
 
 class reader:
     """
@@ -91,12 +92,22 @@ if __name__ == "__main__":
     PWM_GPIO = 25
     RUN_TIME = 60.0
     SAMPLE_TIME = 0.01
+    
+    PWM_RF = 13
+    DIR_RF = 11
+    
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(PWM_RF, GPIO.OUT)
+    GPIO.setup(DIR_RF, GPIO.OUT)
+    
+    
 
     pi = pigpio.pi()
     p = reader(pi, PWM_GPIO)
 
     start = time.time()
 
+    GPIO.output(PWM_RF, GPIO.HIGH)
     while (p.pulse_count < 4720):
         time.sleep(SAMPLE_TIME)
         f = p.frequency()
@@ -106,5 +117,8 @@ if __name__ == "__main__":
 
         print("f={:.1f} Hz, pw={} μs, dc={:.2f} %, distance={:.2f} m".format(f, int(pw+0.5), dc, distance))
 
+    GPIO.output(PWM_RF, GPIO.LOW)
+    GPIO.cleanup()
+    
     p.cancel()
     pi.stop()
