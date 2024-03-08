@@ -115,10 +115,21 @@ if __name__ == "__main__":
             print(p2.pulse_count)
             print(p.pulse_count)
 
-            # turn 180deg
+
+            car.drive(1)
+            while (p.pulse_count < 4685*(5/0.471234)):
+                distance = (p.pulse_count/4685)*0.471234
+                print(distance)
+                data = ser.readline().decode().strip()
+                print("Received:", data)  # Print received data
+                time.sleep(0.2)
+            print(p2.pulse_count)
+            print(p.pulse_count)
+
+            """# turn 180deg
             car.drive(2)
             time.sleep(3.78)
-            
+            """
             p.pulse_count = 0  
             p2.pulse_count = 0 
  
