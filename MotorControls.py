@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
             # turn 180deg
             car.drive(2)
-            time.sleep(3.87)
+            time.sleep(3.78)
             
             p.pulse_count = 0  
             p2.pulse_count = 0 
