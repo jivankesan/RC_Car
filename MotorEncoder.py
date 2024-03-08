@@ -1,133 +1,110 @@
-#!/usr/bin/env python
+import time
+import pigpio  # http://abyz.co.uk/rpi/pigpio/python.html
 
-import pigpio
+class reader:
+    """
+    A class to read PWM pulses and calculate their frequency,
+    duty cycle, and distance traveled. 
+    """
+    def __init__(self, pi, gpio, weighting=0.0, pulses_per_revolution=20, wheel_circumference=0.314):
+        """
+        Instantiate with the Pi, gpio of the PWM signal to monitor, and optionally parameters to calculate distance.
+        
+        weighting: affects smoothing of frequency and duty cycle readings.
+        pulses_per_revolution: how many pulses in one full revolution of the wheel.
+        wheel_circumference: circumference of the wheel in meters (or any other unit).
+        """
+        self.pi = pi
+        self.gpio = gpio
+        self.pulses_per_revolution = pulses_per_revolution
+        self.wheel_circumference = wheel_circumference
+        self.pulse_count = 0  # Counter for the number of pulses
 
-class decoder:
+        if weighting < 0.0:
+            weighting = 0.0
+        elif weighting > 0.99:
+            weighting = 0.99
 
-   """Class to decode mechanical rotary encoder pulses."""
+        self._new = 1.0 - weighting  # Weighting for new reading.
+        self._old = weighting        # Weighting for old reading.
 
-   def __init__(self, pi, gpioA, gpioB, callback):
+        self._high_tick = None
+        self._period = None
+        self._high = None
 
-      """
-      Instantiate the class with the pi and gpios connected to
-      rotary encoder contacts A and B.  The common contact
-      should be connected to ground.  The callback is
-      called when the rotary encoder is turned.  It takes
-      one parameter which is +1 for clockwise and -1 for
-      counterclockwise.
+        pi.set_mode(gpio, pigpio.INPUT)
+        self._cb = pi.callback(gpio, pigpio.EITHER_EDGE, self._cbf)
 
-      EXAMPLE
+    def _cbf(self, gpio, level, tick):
+        if level == 1:
+            if self._high_tick is not None:
+                t = pigpio.tickDiff(self._high_tick, tick)
+                self.pulse_count += 1  # Increment pulse counter
 
-      import time
-      import pigpio
+                if self._period is not None:
+                    self._period = (self._old * self._period) + (self._new * t)
+                else:
+                    self._period = t
 
-      import rotary_encoder
+            self._high_tick = tick
 
-      pos = 0
+        elif level == 0:
+            if self._high_tick is not None:
+                t = pigpio.tickDiff(self._high_tick, tick)
+                if self._high is not None:
+                    self._high = (self._old * self._high) + (self._new * t)
+                else:
+                    self._high = t
 
-      def callback(way):
+    def frequency(self):
+        """Returns the PWM frequency."""
+        if self._period is not None:
+            return 1000000.0 / self._period
+        else:
+            return 0.0
 
-         global pos
+    def pulse_width(self):
+        """Returns the PWM pulse width in microseconds."""
+        if self._high is not None:
+            return self._high
+        else:
+            return 0.0
 
-         pos += way
+    def duty_cycle(self):
+        """Returns the PWM duty cycle percentage."""
+        if self._high is not None:
+            return 100.0 * self._high / self._period
+        else:
+            return 0.0
 
-         print("pos={}".format(pos))
+    def distance_traveled(self):
+        """Calculate and return the distance traveled based on pulse count."""
+        revolutions = self.pulse_count / self.pulses_per_revolution
+        distance = revolutions * self.wheel_circumference  # Distance in meters
+        return distance
 
-      pi = pigpio.pi()
-
-      decoder = rotary_encoder.decoder(pi, 7, 8, callback)
-
-      time.sleep(300)
-
-      decoder.cancel()
-
-      pi.stop()
-
-      """
-
-      self.pi = pi
-      self.gpioA = gpioA
-      self.gpioB = gpioB
-      self.callback = callback
-
-      self.levA = 0
-      self.levB = 0
-
-      self.lastGpio = None
-
-      self.pi.set_mode(gpioA, pigpio.INPUT)
-      self.pi.set_mode(gpioB, pigpio.INPUT)
-
-      self.pi.set_pull_up_down(gpioA, pigpio.PUD_UP)
-      self.pi.set_pull_up_down(gpioB, pigpio.PUD_UP)
-
-      self.cbA = self.pi.callback(gpioA, pigpio.EITHER_EDGE, self._pulse)
-      self.cbB = self.pi.callback(gpioB, pigpio.EITHER_EDGE, self._pulse)
-
-   def _pulse(self, gpio, level, tick):
-
-      """
-      Decode the rotary encoder pulse.
-
-                   +---------+         +---------+      0
-                   |         |         |         |
-         A         |         |         |         |
-                   |         |         |         |
-         +---------+         +---------+         +----- 1
-
-             +---------+         +---------+            0
-             |         |         |         |
-         B   |         |         |         |
-             |         |         |         |
-         ----+         +---------+         +---------+  1
-      """
-
-      if gpio == self.gpioA:
-         self.levA = level
-      else:
-         self.levB = level;
-
-      if gpio != self.lastGpio: # debounce
-         self.lastGpio = gpio
-
-         if   gpio == self.gpioA and level == 1:
-            if self.levB == 1:
-               self.callback(1)
-         elif gpio == self.gpioB and level == 1:
-            if self.levA == 1:
-               self.callback(-1)
-
-   def cancel(self):
-
-      """
-      Cancel the rotary encoder decoder.
-      """
-
-      self.cbA.cancel()
-      self.cbB.cancel()
+    def cancel(self):
+        """Cancels the reader and releases resources."""
+        self._cb.cancel()
 
 if __name__ == "__main__":
+    PWM_GPIO = 25
+    RUN_TIME = 60.0
+    SAMPLE_TIME = 0.01
 
-   import time
-   import pigpio
+    pi = pigpio.pi()
+    p = reader(pi, PWM_GPIO)
 
-   pos = 0
+    start = time.time()
 
-   def callback(way):
+    while (time.time() - start) < RUN_TIME:
+        time.sleep(SAMPLE_TIME)
+        f = p.frequency()
+        pw = p.pulse_width()
+        dc = p.duty_cycle()
+        distance = p.pulse_count
 
-      global pos
+        print("f={:.1f} Hz, pw={} μs, dc={:.2f} %, distance={:.2f} m".format(f, int(pw+0.5), dc, distance))
 
-      pos += way
-
-      print("pos={}".format(pos))
-
-   pi = pigpio.pi()
-
-   decoder = decoder(pi, 25, 8, callback)
-
-   time.sleep(300)
-
-   decoder.cancel()
-
-   pi.stop()
-
+    p.cancel()
+    pi.stop()
