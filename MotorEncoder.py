@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
    pi = pigpio.pi()
 
-   decoder = decoder(pi, 7, 8, callback)
+   decoder = decoder(pi, 22, 8, callback)
 
    time.sleep(300)
 
