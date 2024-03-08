@@ -108,7 +108,7 @@ if __name__ == "__main__":
     start = time.time()
 
     GPIO.output(PWM_RF, GPIO.HIGH)
-    while (p.pulse_count < 4720):
+    while (p.pulse_count < 4700):
         time.sleep(SAMPLE_TIME)
         f = p.frequency()
         pw = p.pulse_width()
