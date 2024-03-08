@@ -20,6 +20,9 @@ class reader:
         self.pulses_per_revolution = pulses_per_revolution
         self.wheel_circumference = wheel_circumference
         self.pulse_count = 0  # Counter for the number of pulses
+        """
+        .471234 m traveled per revolution
+        """
 
         if weighting < 0.0:
             weighting = 0.0
@@ -89,12 +92,12 @@ class reader:
         self._cb.cancel()
 
 if __name__ == "__main__":
-    PWM_GPIO = 25
+    PWM_GPIO = 8
     RUN_TIME = 60.0
     SAMPLE_TIME = 0.01
     
-    PWM_RF = 13
-    DIR_RF = 11
+    PWM_RF = 16
+    DIR_RF = 18
     
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(PWM_RF, GPIO.OUT)
