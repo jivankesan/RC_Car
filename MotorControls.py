@@ -115,6 +115,8 @@ if __name__ == "__main__":
             print(p2.pulse_count)
             print(p.pulse_count)
 
+            p.pulse_count = 0  
+            p2.pulse_count = 0
 
             car.drive(1)
             while (p.pulse_count < 4685*(5/0.471234)):
