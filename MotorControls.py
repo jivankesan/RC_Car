@@ -2,6 +2,8 @@ import RPi.GPIO as GPIO
 import controls
 import time
 import Gyroscope
+import pigpio
+import MotorEncoder
 
 class Car():
     def __init__(self):
@@ -86,22 +88,35 @@ class Car():
 
 
 if __name__ == "__main__":
+    
+    Pin1 = 8
+    Pin2 = 25
+    RUN_TIME = 60.0
+    SAMPLE_TIME = 0.01
+    
+    pi = pigpio.pi()
+    pi2 = pigpio.pi()
+    p = MotorEncoder.reader(pi, Pin1)
+    p2 = MotorEncoder.reader(pi2, Pin2)
+    
     car = Car()
-    gyro = Gyroscope.GYRO()
     try:
         while True:
-            car.drive(2)
-            time.sleep(1.932)
-            car.drive(3)
-            time.sleep(1.932)
             car.drive(0)
-            time.sleep(10)
-            car.drive(1)
-            time.sleep(10)
-            roll, pitch, yaw = gyro.get_orientation(time.time())
-            print(f"Roll={roll:.2f}° Pitch={pitch:.2f}° Yaw={yaw:.2f}°")
+            while (p.pulse_count < 4685*(10/0.471234)):
+                distance = (p.pulse_count/4685)*0.471234
+                print(distance)
+            print(p2.pulse_count)
+            print(p.pulse_count)
+
+            # turn 90deg
+            car.drive(2)
+            time.sleep(1.935)
             
-            
+            p.pulse_count = 0  
+            p2.pulse_count = 0 
+ 
+        
     except KeyboardInterrupt:
         # Cleanup GPIO when program is interrupted
         GPIO.cleanup()

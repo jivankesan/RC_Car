@@ -115,7 +115,7 @@ if __name__ == "__main__":
         f = p.frequency()
         pw = p.pulse_width()
         dc = p.duty_cycle()
-        distance = p.pulse_count
+        distance = p.pulse_count/4695
 
         print("f={:.1f} Hz, pw={} μs, dc={:.2f} %, distance={:.2f} m".format(f, int(pw+0.5), dc, distance))
 
