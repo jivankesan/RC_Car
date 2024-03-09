@@ -118,7 +118,7 @@ if __name__ == "__main__":
             """
         
             car.drive(2)
-            time.sleep(1.935)
+            time.sleep(1.95)
             
             car.stop()
             time.sleep(2)
