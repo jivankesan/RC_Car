@@ -116,7 +116,7 @@ if __name__ == "__main__":
             print(p.pulse_count)
 
             car.drive(2)
-            time.sleep(3.78)
+            time.sleep(3.90)
             
             p.pulse_count = 0  
             p2.pulse_count = 0
