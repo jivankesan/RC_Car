@@ -105,6 +105,7 @@ if __name__ == "__main__":
     car = Car()
     try:
         while True:
+            """
             car.drive(0)
             while (p.pulse_count < 4685*(2/0.471234)):
                 distance = (p.pulse_count/4685)*0.471234
@@ -114,9 +115,13 @@ if __name__ == "__main__":
                 
             print(p2.pulse_count)
             print(p.pulse_count)
-
+            """
+        
             car.drive(2)
-            time.sleep(3.90)
+            time.sleep(1.935)
+            
+            car.stop()
+            time.sleep(2)
             
             p.pulse_count = 0  
             p2.pulse_count = 0
