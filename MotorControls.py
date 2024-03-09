@@ -106,7 +106,7 @@ if __name__ == "__main__":
     try:
         while True:
             car.drive(0)
-            while (p.pulse_count < 4685*(5/0.471234)):
+            while (p.pulse_count < 4685*(2/0.471234)):
                 distance = (p.pulse_count/4685)*0.471234
                 print(distance)
                 data = ser.readline().decode().strip()
