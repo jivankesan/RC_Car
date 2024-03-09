@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 print(distance)
                 data = ser.readline().decode().strip()
                 print("Received:", data)  # Print received data
-                time.sleep(0.2)
+                
             print(p2.pulse_count)
             print(p.pulse_count)
 
