@@ -133,9 +133,9 @@ if __name__ == "__main__":
             seconds_per_degree = 1.947 / 90  # Time it takes to turn one degree
             turn_duration = abs(angle_to_turn) * seconds_per_degree                
             if angle_to_turn < 0:
-                car.drive(2)     
+                car.drive(3)     
             else:
-                car.drive(3)
+                car.drive(2)
             time.sleep(turn_duration)      
             car.stop()
                    
