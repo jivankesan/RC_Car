@@ -103,7 +103,7 @@ if __name__ == "__main__":
     p = MotorEncoder.reader(pi, Pin1)
     p2 = MotorEncoder.reader(pi2, Pin2)
     
-    points = [(0.3,0.3),(0.6,1.2),(0.6,1.5),(1.8,2.1),(2.1,2.1),(2.4,2.4)]
+    points = [(0.3,0.3),(1.2,0.6),(1.5,0.6),(2.1,1.8),(2.1,2.1),(2.4,2.4)]
     
     car = Car()
     curr_angle = 0
