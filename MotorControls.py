@@ -127,7 +127,7 @@ if __name__ == "__main__":
     
     try:
         for point in points:
-            distance = distance(curr_point, point)
+            dist = distance(curr_point, point)
             angle_to_turn = calculate_travel_angle(curr_point, point, curr_angle)
                 
             seconds_per_degree = 1.947 / 90  # Time it takes to turn one degree
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             p.pulse_count=0 
                 
             car.drive(0)
-            while (p.pulse_count < 4685*(distance/0.471234)):
+            while (p.pulse_count < 4685*(dist/0.471234)):
                 curr_distance = (p.pulse_count/4685)*0.471234
                 print(curr_distance)
 
