@@ -149,6 +149,7 @@ if __name__ == "__main__":
             print('reached: {point}')
                 
             curr_angle = (curr_angle + angle_to_turn) % 360
+            curr_point = point
             
     except KeyboardInterrupt:
         # Cleanup GPIO when program is interrupted
