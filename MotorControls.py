@@ -145,8 +145,6 @@ if __name__ == "__main__":
             while (p.pulse_count < 4685*(distance/0.471234)):
                 curr_distance = (p.pulse_count/4685)*0.471234
                 print(curr_distance)
-                data = ser.readline().decode().strip()
-                print("Received:", data)  # Print received data
 
             print('reached: {point}')
                 
