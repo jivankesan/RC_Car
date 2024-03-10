@@ -135,7 +135,7 @@ if __name__ == "__main__":
             if angle_to_turn < 0:
                 car.drive(2)     
             else:
-                car.drive(1)
+                car.drive(3)
             time.sleep(turn_duration)      
             car.stop()
                    
