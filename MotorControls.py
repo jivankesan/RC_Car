@@ -5,6 +5,7 @@ import Gyroscope
 import pigpio
 import MotorEncoder
 import serial
+import math
 
 class Car():
     def __init__(self):
@@ -102,44 +103,53 @@ if __name__ == "__main__":
     p = MotorEncoder.reader(pi, Pin1)
     p2 = MotorEncoder.reader(pi2, Pin2)
     
+    points = [(0.3,0.3),(0.6,1.2),(0.6,1.5),(1.8,2.1),(2.1,2.1),(2.4,2.4)]
+    
     car = Car()
+    curr_angle = 0
+    curr_point = (0,0)
+    
+    def distance(point1, point2):
+        return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
+    
+    def calculate_travel_angle(point1, point2, current_angle):
+
+        # Calculate the angle to destination
+        angle_to_destination = math.atan2(point2[1] - point1[1], point2[0] - point1[0]) * (180 / math.pi)
+        
+        # Calculate the required angle adjustment from the current orientation
+        angle_adjustment = angle_to_destination - current_angle
+        
+        # Normalize the angle to the range [-180, 180]
+        angle_adjustment = (angle_adjustment + 180) % 360 - 180
+        
+        return angle_adjustment
+    
     try:
-        while True:
-            """
-            car.drive(0)
-            while (p.pulse_count < 4685*(2/0.471234)):
-                distance = (p.pulse_count/4685)*0.471234
-                print(distance)
-                data = ser.readline().decode().strip()
-                print("Received:", data)  # Print received data
+        for point in points:
+            distance = distance(curr_point, point)
+            angle_to_turn = calculate_travel_angle(curr_point, point, curr_angle)
                 
-            print(p2.pulse_count)
-            print(p.pulse_count)
-            """
-        
-            car.drive(2)
-            time.sleep(1.947)
-            
-            car.stop()
-            time.sleep(2)
-            
-            p.pulse_count = 0  
-            p2.pulse_count = 0
-
-        """car.drive(0)
-            while (p.pulse_count < 4685*(5/0.471234)):
-                distance = (p.pulse_count/4685)*0.471234
-                print(distance)
+            seconds_per_degree = 1.947 / 90  # Time it takes to turn one degree
+            turn_duration = abs(angle_to_turn) * seconds_per_degree                
+            if angle_to_turn < 0:
+                car.drive(2)
+                time.sleep(turn_duration)      
+                car.stop()
+                   
+            p.pulse_count=0 
+                
+            car.drive(0)
+            while (p.pulse_count < 4685*(distance/0.471234)):
+                curr_distance = (p.pulse_count/4685)*0.471234
+                print(curr_distance)
                 data = ser.readline().decode().strip()
                 print("Received:", data)  # Print received data
-                time.sleep(0.2)
-            print(p2.pulse_count)
-            print(p.pulse_count)
 
-            p.pulse_count = 0  
-            p2.pulse_count = 0 
-        """
-        
+            print('reached: {point}')
+                
+            curr_angle = (curr_angle + angle_to_turn) % 360
+            
     except KeyboardInterrupt:
         # Cleanup GPIO when program is interrupted
         GPIO.cleanup()
