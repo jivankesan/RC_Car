@@ -103,6 +103,7 @@ if __name__ == "__main__":
     dist =5
     
     try:
+        car.drive(0)
         while (p.pulse_count < 4685*(dist/0.471234)):
             curr_distance = (p.pulse_count/4685)*0.471234
             print(curr_distance)
