@@ -96,6 +96,25 @@ if __name__ == "__main__":
     RUN_TIME = 60.0
     SAMPLE_TIME = 0.01
     
+    pi = pigpio.pi()
+    p = MotorEncoder.reader(pi, Pin1)
+    car = Car()
+    
+    dist =5
+    
+    try:
+        while (p.pulse_count < 4685*(dist/0.471234)):
+            curr_distance = (p.pulse_count/4685)*0.471234
+            print(curr_distance)
+        
+        car.drive(3)
+        time.sleep(2)
+    
+    except KeyboardInterrupt:
+    # Cleanup GPIO when program is interrupted
+        GPIO.cleanup()
+        
+    """_summary_
     ser = serial.Serial('/dev/ttyUSB0', 115200)  # Adjust port and baud rate as needed
 
     pi = pigpio.pi()
@@ -152,7 +171,6 @@ if __name__ == "__main__":
             curr_point = point
         car.stop()
         print(points[-1])
-           
-    except KeyboardInterrupt:
-        # Cleanup GPIO when program is interrupted
-        GPIO.cleanup()
+          """   
+    
+      
