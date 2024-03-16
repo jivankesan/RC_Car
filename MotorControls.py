@@ -112,6 +112,7 @@ if __name__ == "__main__":
         time.sleep(2)
     
     except KeyboardInterrupt:
+        car.stop()
     # Cleanup GPIO when program is interrupted
         GPIO.cleanup()
         
