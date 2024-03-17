@@ -100,16 +100,17 @@ if __name__ == "__main__":
     p = MotorEncoder.reader(pi, Pin1)
     car = Car()
     
-    dist =5
+    dist = 5
     
     try:
-        car.drive(1)
-        while (p.pulse_count < 4685*(dist/0.471234)):
-            curr_distance = (p.pulse_count/4685)*0.471234
-            print(curr_distance)
-        
-        car.drive(3)
-        time.sleep(2)
+        while True:
+            car.drive(1)
+            while (p.pulse_count < 4685*(dist/0.471234)):
+                curr_distance = (p.pulse_count/4685)*0.471234
+                print(curr_distance)
+            
+            car.drive(3)
+            time.sleep(2)
     
     except KeyboardInterrupt:
         car.stop()
