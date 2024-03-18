@@ -100,14 +100,22 @@ if __name__ == "__main__":
     p = MotorEncoder.reader(pi, Pin1)
     car = Car()
     
-    dist = 5
+    ser = serial.Serial('/dev/ttyUSB0', 115200)
+    
+    dist = 20
     
     try:
         while True:
             car.drive(1)
-            while (p.pulse_count < 4685*(dist/0.471234)):
-                curr_distance = (p.pulse_count/4685)*0.471234
+            while (p.pulse_count < 4685*(dist/0.43981)):
+                curr_distance = (p.pulse_count/4685)*0.43981
                 print(curr_distance)
+                data = ser.readline().decode().strip()
+                print("Received:", data)
+            
+              # Adjust port and baud rate as needed
+            
+            p.pulse_count = 0
             
             car.drive(3)
             time.sleep(2)
@@ -117,8 +125,8 @@ if __name__ == "__main__":
     # Cleanup GPIO when program is interrupted
         GPIO.cleanup()
         
-    """_summary_
-    ser = serial.Serial('/dev/ttyUSB0', 115200)  # Adjust port and baud rate as needed
+        
+    """
 
     pi = pigpio.pi()
     pi2 = pigpio.pi()
