@@ -9,7 +9,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 sensor = adafruit_bno055.BNO055_I2C(i2c)
 
 # Initialize serial port
-serial_port = '/dev/serial0'  # Update this to the correct serial port
+serial_port = '/dev/tty1'  # Update this to the correct serial port
 baud_rate = 9600  # Serial communication baud rate
 ser = serial.Serial(serial_port, baudrate=baud_rate, timeout=1)
 

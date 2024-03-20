@@ -2,7 +2,7 @@ import serial
 import time
 
 # Initialize serial port - update to the correct serial port for your receiver device
-serial_port = '/dev/serial0'  # This needs to be the serial port on your receiver device
+serial_port = '/dev/tty1'  # This needs to be the serial port on your receiver device
 baud_rate = 9600  # Make sure this matches the baud rate used for sending the data
 
 # Setup serial connection
