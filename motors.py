@@ -4,17 +4,17 @@ import time
 class Car():
     def __init__(self):
         # Define GPIO pins for motors
-        self.PWM_RB = 36  
-        self.DIR_RB = 32
+        self.PWM_RB = 16  
+        self.DIR_RB = 12
         
-        self.PWM_LB = 31
-        self.DIR_LB = 29
+        self.PWM_LB = 6
+        self.DIR_LB = 5
         
-        self.PWM_RF = 13
-        self.DIR_RF = 11
+        self.PWM_RF = 27
+        self.DIR_RF = 17
         
-        self.PWM_LF = 16
-        self.DIR_LF = 18
+        self.PWM_LF = 23
+        self.DIR_LF = 24
 
         self.pins = [self.PWM_RF, self.DIR_RF, self.PWM_LB, self.DIR_LB, self.PWM_RB, self.DIR_RB, self.PWM_LF, self.DIR_LF]
         self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_RB, self.PWM_RF]
