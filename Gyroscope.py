@@ -6,7 +6,7 @@ import RPi.GPIO as GPIO
 
 
 
-sensor = BNO055.BNO055()
+sensor = BNO055()
 
 while True:
     euler = sensor.euler
