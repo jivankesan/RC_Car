@@ -26,8 +26,8 @@ if __name__ == "__main__":
     dist = 20
         
     try:
+        car.drive(0)
         while True:
-            car.drive(0)
             angle = sensor.euler[0]
             curr_distance = (p.pulse_count/4685)*0.471234
             data = ser.readline().decode().strip()
