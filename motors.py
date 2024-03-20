@@ -22,6 +22,8 @@ class Car():
         self.dir_R = [self.DIR_RB, self.DIR_RF]
  
 
+        # Setup GPIO pins
+        GPIO.setmode(GPIO.BOARD)
         for pin in self.pins:
             GPIO.setup(pin, GPIO.OUT)    
 

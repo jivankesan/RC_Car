@@ -1,11 +1,22 @@
 import time
-import board
-import busio
-import adafruit_bno055
+# import board
+# import busio
+# import adafruit_bno055
 import RPi.GPIO as GPIO
 
 
+GPIO.setmode(GPIO.BOARD)
 
+res = GPIO.getmode()
+
+print(res)
+
+
+
+"""
+    
+    
+ 
 res = GPIO.getmode()
 print(res)
 
@@ -17,3 +28,4 @@ while True:
     print('X: {:.2f}, Y: {:.2f}, Z: {:.2f}'.format(euler[0], euler[1], euler[2]))
     time.sleep(0.1)
 
+   """
