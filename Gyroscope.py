@@ -1,17 +1,16 @@
 import time
-# import board
+import board
 import busio
 import adafruit_bno055
 import RPi.GPIO as GPIO
 
+GPIO.cleanup()
 
 GPIO.setmode(GPIO.BOARD)
 
 res = GPIO.getmode()
 
 print(res)
-
-
 
 """
     
