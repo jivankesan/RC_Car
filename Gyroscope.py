@@ -1,7 +1,7 @@
 import time
 import board
 import busio
-from Adafruit_BNO055 import BNO055
+from adafruit_bno055 import BNO055
 import RPi.GPIO as GPIO
 
 
