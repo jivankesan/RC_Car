@@ -13,16 +13,6 @@ import adafruit_bno055
 
 
 if __name__ == "__main__":
-    
-    def read_yaw_angle(sensor):
-        euler = sensor.euler[0]
-        if euler is not None:
-            return euler 
-        return None
-
-    def normalize_angle(angle):
-        return angle % 360
-
     i2c = board.I2C()  
     sensor = adafruit_bno055.BNO055_I2C(i2c) 
     
