@@ -1,14 +1,13 @@
 import time
 import board
 import busio
-import adafruit_bno055
+from Adafruit_BNO055 import BNO055
 import RPi.GPIO as GPIO
 
 
 GPIO.setmode(GPIO.BOARD)
 
-i2c = busio.I2C(board.SCL, board.SDA)
-sensor = adafruit_bno055.BNO055_I2C(i2c)
+sensor = BNO055.BNO055()
 
 while True:
     euler = sensor.euler
