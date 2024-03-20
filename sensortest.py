@@ -1,12 +1,8 @@
 import RPi.GPIO as GPIO
 from motors import Car
-import controls
-import time
-import Gyroscope
 import pigpio
 import MotorEncoder
 import serial
-import math
 import board
 import adafruit_bno055
 
