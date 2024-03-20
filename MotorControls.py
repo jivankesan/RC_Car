@@ -15,9 +15,9 @@ from motors import Car
 if __name__ == "__main__":
     
     def read_yaw_angle(sensor):
-        euler = sensor.euler
+        euler = sensor.euler[0]
         if euler is not None:
-            return euler[0]  # Yaw is the first element
+            return euler 
         return None
 
     def normalize_angle(angle):
@@ -60,19 +60,18 @@ if __name__ == "__main__":
         for point in points:
             dist = distance(curr_point, point)
             target_yaw = calculate_target_yaw(curr_point, point, curr_angle)
-                
-            # Initiate turn
+            
             if target_yaw < 0:
-                car.drive(3)  # Assuming this turns the car left
+                car.drive(3)  
             else:
-                car.drive(2)  # Assuming this turns the car right
+                car.drive(2) 
             
             while True:
                 current_yaw = read_yaw_angle(sensor)
                 if current_yaw is None:
                     continue  # Skip iteration if sensor read failed
                     
-                if abs(normalize_angle(current_yaw - target_yaw)) < 5:  # 5 degrees tolerance
+                if abs(normalize_angle(current_yaw - target_yaw)) < 3:  # 5 degrees tolerance
                     break  # Exit loop once close to the target yaw
                     
             car.stop()
