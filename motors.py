@@ -23,7 +23,6 @@ class Car():
  
 
         # Setup GPIO pins
-        GPIO.setmode(GPIO.BOARD)
         for pin in self.pins:
             GPIO.setup(pin, GPIO.OUT)    
 
