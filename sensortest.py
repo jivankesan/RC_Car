@@ -13,6 +13,9 @@ import adafruit_bno055
 
 
 if __name__ == "__main__":
+    
+    GPIO.setmode(GPIO.BOARD)
+    
     i2c = board.I2C()  
     sensor = adafruit_bno055.BNO055_I2C(i2c) 
     
@@ -28,11 +31,7 @@ if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyUSB0', 115200)
     
     dist = 20
-
-    pi = pigpio.pi()
-    pi2 = pigpio.pi()
-    p = MotorEncoder.reader(pi, Pin1)
-    
+        
     try:
         while True:
             car.drive(0)
