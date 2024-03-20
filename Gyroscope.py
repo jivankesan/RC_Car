@@ -5,7 +5,6 @@ from adafruit_bno055 import BNO055
 import RPi.GPIO as GPIO
 
 
-GPIO.setmode(GPIO.BOARD)
 
 sensor = BNO055.BNO055()
 
