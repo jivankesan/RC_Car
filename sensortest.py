@@ -13,6 +13,7 @@ import adafruit_bno055
 
 
 if __name__ == "__main__":
+    GPIO.setmode(GPIO.BOARD)
     
     i2c = board.I2C()  
     sensor = adafruit_bno055.BNO055_I2C(i2c) 
@@ -37,7 +38,10 @@ if __name__ == "__main__":
             curr_distance = (p.pulse_count/4685)*0.471234
             data = ser.readline().decode().strip()
             print(f"Angle: {angle}, Current Distance: {curr_distance}, Data: {data}")
+            
     except KeyboardInterrupt:
+        print("stopped")
+    finally:
         car.stop()
-    # Cleanup GPIO when program is interrupted
-        GPIO.cleanup() 
+        GPIO.cleanup()
+        
