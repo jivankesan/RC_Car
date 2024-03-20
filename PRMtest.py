@@ -66,9 +66,9 @@ def parse_csv_for_points_and_boundary(csv_file_path):
 
 if __name__ == "__main__":
     
-    # checkpoints = ''
-    # obstacles = ''
-    # environment = ''
+    checkpoints = ''
+    obstacles = ''
+    environment = ''
     
     points = []
     
@@ -88,13 +88,13 @@ if __name__ == "__main__":
     path_planner = PathPlanner()
     CurrGoals = GoalManager()
     
-    # path_planner.checkpoints = compute_gate_midpoints(checkpoints)
-    # path_planner.environment = parse_csv_for_points_and_boundary(environment)
-    # path_planner.obstacles = read_obstacles(obstacles)
+    path_planner.checkpoints = compute_gate_midpoints(checkpoints)
+    path_planner.environment = parse_csv_for_points_and_boundary(environment)
+    path_planner.obstacles = read_obstacles(obstacles)
     
-    #print("running path planner")
-    #path_planner.global_prm()
-    #print("finished path planner")
+    print("running path planner")
+    path_planner.global_prm()
+    print("finished path planner")
     
     while path_planner.index < path_planner.maxlen:
         

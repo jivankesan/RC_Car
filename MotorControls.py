@@ -6,90 +6,25 @@ import pigpio
 import MotorEncoder
 import serial
 import math
+import board
+import adafruit_bno055
 
-class Car():
-    def __init__(self):
-        # Define GPIO pins for motors
-        self.PWM_RB = 36  
-        self.DIR_RB = 32
-        
-        self.PWM_LB = 31
-        self.DIR_LB = 29
-        
-        self.PWM_RF = 13
-        self.DIR_RF = 11
-        
-        self.PWM_LF = 16
-        self.DIR_LF = 18
-
-        self.pins = [self.PWM_RF, self.DIR_RF, self.PWM_LB, self.DIR_LB, self.PWM_RB, self.DIR_RB, self.PWM_LF, self.DIR_LF]
-        self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_RB, self.PWM_RF]
-        self.dir_L = [self.DIR_LB, self.DIR_LF]
-        self.dir_R = [self.DIR_RB, self.DIR_RF]
- 
-
-        # Setup GPIO pins
-        GPIO.setmode(GPIO.BOARD)
-        for pin in self.pins:
-            GPIO.setup(pin, GPIO.OUT)    
-
-
-    def stop(self):
-        for pin in self.pins:
-            GPIO.output(pin, GPIO.LOW)
-    
-    def turn_right(self):
-        self.stop()
-        time.sleep(.1)
-        for pin in self.dir_L:
-            GPIO.output(pin, GPIO.HIGH)
-        for pin in self.pwm_pins:
-            GPIO.output(pin, GPIO.HIGH)
-    
-    def turn_left(self):
-        self.stop()
-        time.sleep(.1)
-        for pin in self.dir_R:
-            GPIO.output(pin, GPIO.HIGH)
-        for pin in self.pwm_pins:
-            GPIO.output(pin, GPIO.HIGH)
-
-    def forward(self):
-        self.stop()
-        time.sleep(.1)
-        for pin in self.pwm_pins:
-            GPIO.output(pin, GPIO.HIGH)
-   
-    def reverse(self):
-        self.stop()
-        time.sleep(.1)
-        for pin in self.dir_R:
-            GPIO.output(pin, GPIO.HIGH)
-        for pin in self.dir_L:
-            GPIO.output(pin, GPIO.HIGH)
-        for pin in self.pwm_pins:
-            GPIO.output(pin, GPIO.HIGH)
-        
-        
-    def drive(self, axis_data):
-    
-        # mapping forwards backwards movement
-        if axis_data == 2:  
-            self.turn_left()
-        
-        elif axis_data == 3:  
-            self.turn_right()
-            
-        elif axis_data == 0: 
-            self.forward()
-        
-        elif axis_data == 1: 
-            self.reverse()
-        
-        else: self.stop() 
+from motors import Car
 
 
 if __name__ == "__main__":
+    
+    def read_yaw_angle(sensor):
+        euler = sensor.euler
+        if euler is not None:
+            return euler[0]  # Yaw is the first element
+        return None
+
+    def normalize_angle(angle):
+        return angle % 360
+
+    i2c = board.I2C()  
+    sensor = adafruit_bno055.BNO055_I2C(i2c) 
     
     Pin1 = 8
     Pin2 = 25
@@ -103,70 +38,43 @@ if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyUSB0', 115200)
     
     dist = 20
-    
-    try:
-        while True:
-            car.drive(1)
-            while (p.pulse_count < 4685*(dist/0.43981)):
-                curr_distance = (p.pulse_count/4685)*0.43981
-                print(curr_distance)
-                data = ser.readline().decode().strip()
-                print("Received:", data)
-            
-              # Adjust port and baud rate as needed
-            
-            p.pulse_count = 0
-            
-            car.drive(3)
-            time.sleep(2)
-    
-    except KeyboardInterrupt:
-        car.stop()
-    # Cleanup GPIO when program is interrupted
-        GPIO.cleanup()
-        
-        
-    """
 
     pi = pigpio.pi()
     pi2 = pigpio.pi()
     p = MotorEncoder.reader(pi, Pin1)
-    p2 = MotorEncoder.reader(pi2, Pin2)
     
     points = [(0.3,0.3),(1.2,0.6),(1.5,0.6),(2.1,1.8),(2.1,2.1),(2.4,2.4), (0.6, 2.4), (3.0, 2.7), (0.3, 0.3)]
     
     car = Car()
-    curr_angle = 0
     curr_point = (0,0)
+    curr_angle = read_yaw_angle(sensor) 
     
     def distance(point1, point2):
         return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
     
-    def calculate_travel_angle(point1, point2, current_angle):
-
-        # Calculate the angle to destination
-        angle_to_destination = math.atan2(point2[1] - point1[1], point2[0] - point1[0]) * (180 / math.pi)
-        
-        # Calculate the required angle adjustment from the current orientation
-        angle_adjustment = angle_to_destination - current_angle
-        
-        # Normalize the angle to the range [-180, 180]
-        angle_adjustment = (angle_adjustment + 180) % 360 - 180
-        
-        return angle_adjustment
+    def calculate_target_yaw(current_yaw, angle_adjustment):
+        target_yaw = normalize_angle(current_yaw + angle_adjustment)
+        return target_yaw
     
     try:
         for point in points:
             dist = distance(curr_point, point)
-            angle_to_turn = calculate_travel_angle(curr_point, point, curr_angle)
+            target_yaw = calculate_target_yaw(curr_point, point, curr_angle)
                 
-            seconds_per_degree = 1.947 / 90  # Time it takes to turn one degree
-            turn_duration = abs(angle_to_turn) * seconds_per_degree                
-            if angle_to_turn < 0:
-                car.drive(3)     
+            # Initiate turn
+            if target_yaw < 0:
+                car.drive(3)  # Assuming this turns the car left
             else:
-                car.drive(2)
-            time.sleep(turn_duration)      
+                car.drive(2)  # Assuming this turns the car right
+            
+            while True:
+                current_yaw = read_yaw_angle(sensor)
+                if current_yaw is None:
+                    continue  # Skip iteration if sensor read failed
+                    
+                if abs(normalize_angle(current_yaw - target_yaw)) < 5:  # 5 degrees tolerance
+                    break  # Exit loop once close to the target yaw
+                    
             car.stop()
                    
             p.pulse_count=0 
@@ -178,10 +86,15 @@ if __name__ == "__main__":
 
             print('reached: {point}')
                 
-            curr_angle = (curr_angle + angle_to_turn) % 360
+            curr_angle = read_yaw_angle(sensor)
             curr_point = point
+            
         car.stop()
         print(points[-1])
-          """   
+
+    except KeyboardInterrupt:
+        car.stop()
+    # Cleanup GPIO when program is interrupted
+        GPIO.cleanup() 
     
       
