@@ -8,9 +8,7 @@ import adafruit_bno055
 
 
 
-if __name__ == "__main__":
-    GPIO.setmode(GPIO.BOARD)
-    
+if __name__ == "__main__":  
     i2c = board.I2C()  
     sensor = adafruit_bno055.BNO055_I2C(i2c) 
     
