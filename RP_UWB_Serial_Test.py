@@ -47,6 +47,7 @@ if __name__ == "__main__":
                     # adjust order of points based on the uwb location accordingly
                 print(len(distances))
                 target_location = location_solver(points, distances, x0)
+                x0 = target_location
                 print("Target location:", target_location)
                     
                    
