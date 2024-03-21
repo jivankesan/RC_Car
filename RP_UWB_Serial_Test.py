@@ -43,7 +43,7 @@ if __name__ == "__main__":
                     if data:  # Only print if data is not empty
                         print("Received:", data)
                         data.split(",")
-                    distances.append(int(data[1]))
+                    distances.append(int(data[2]))
                     # adjust order of points based on the uwb location accordingly
                 print(len(distances))
                 target_location = location_solver(points, distances, x0)
