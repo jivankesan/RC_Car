@@ -2,19 +2,6 @@ import serial
 from scipy.optimize import minimize
 import math
 import numpy as np
-
-def compute_and_publish_location(point1, point2, distance12, point3, point4, distance34):
-        uwb1_position = location_solver(point1, point2, distance12)
-        uwb2_position = location_solver(point3, point4, distance34)
-        if isinstance(uwb1_position, str) or isinstance(uwb2_position, str):  # Check if the return value indicates an error
-            print("ERROR")
-            return 
-
-        x, y = (uwb1_position[0] + uwb2_position[0])/2, (uwb1_position[1] + uwb2_position[1])/2 
-
-        # Once computed, publish the current location
-        print(x)
-        print(y)
     
 def location_solver(points, distances, x0):
     # Adjusted objective function to minimize
@@ -55,7 +42,8 @@ if __name__ == "__main__":
                     data = ser.readline().decode().strip()
                     if data:  # Only print if data is not empty
                         print("Received:", data)
-                    distances.append(data)
+                        data.split(",")
+                    distances.append(data[1])
                     # adjust order of points based on the uwb location accordingly
                 print(len(distances))
                 target_location = location_solver(points, distances, x0)
