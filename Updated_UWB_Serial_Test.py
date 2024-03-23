@@ -47,7 +47,7 @@ if __name__ == "__main__":
                         tag = int(data[0])
                         distance = float(data[1])
                         uwb_distances_dict[tag] = distance
-                        distances.append(int(data[2]))
+                        distances.append(int(data[1]))
                     # adjust order of points based on the uwb location accordingly
                 target_location = location_solver(points, distances, x0)
                 print("Target location:", target_location)
