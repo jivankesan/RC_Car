@@ -5,6 +5,7 @@ import MotorEncoder
 import serial
 import board
 import adafruit_bno055
+import time
 
 
 
@@ -28,20 +29,14 @@ if __name__ == "__main__":
     try:
         init = sensor.euler[0]
         curr = 0
-        car.drive(0)
-        while (p.pulse_count < (10/0.478)):
-            angle = sensor.euler[0]
-            curr = angle
-            curr_distance = (p.pulse_count/4685)*0.471234
-            data = ser.readline().decode().strip()
-            print(f"Angle: {angle}, Current Distance: {curr_distance}, Data: {data}")
         
         car.drive(2)
         angle = sensor.euler[0]
         while(angle < 90):
             angle = sensor.euler[0]
         
-            
+        car.stop()
+        time.sleep(2)
             
     except KeyboardInterrupt:
         print("stopped")
