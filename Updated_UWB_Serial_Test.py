@@ -43,18 +43,18 @@ if __name__ == "__main__":
                     # Read data from the serial port
                     data = ser.readline().decode().strip()
                     if data:  # Only print if data is not empty
-                        data = data.split(",")
+                        print("Received:", data)
+                        data.split(",")
                         tag = int(data[0])
                         distance = float(data[1])
                         uwb_distances_dict[tag] = distance
-                        distances.append(int(data[1]))
+                    distances.append(int(data[2]))
                     # adjust order of points based on the uwb location accordingly
+                print("Distances count: ",len(distances))
                 target_location = location_solver(points, distances, x0)
+                x0 = target_location
                 print("Target location:", target_location)
                 print("Distances dictionary:", uwb_distances_dict)
-                print("Distances count: ",len(distances))
-                x0 = target_location
-                
                     
         except KeyboardInterrupt:
             print("\nExiting due to keyboard interrupt.")
