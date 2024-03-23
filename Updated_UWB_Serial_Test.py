@@ -44,10 +44,10 @@ if __name__ == "__main__":
                     data = ser.readline().decode().strip()
                     if data:  # Only print if data is not empty
                         data = data.split(",")
-                        tag = int(data[0])
-                        distance = float(data[1])
-                        uwb_distances_dict[tag] = distance
-                        distances.append(int(data[2]))
+                    tag = int(data[0])
+                    distance = float(data[1])
+                    uwb_distances_dict[tag] = distance
+                    distances.append(int(data[2]))
                     # adjust order of points based on the uwb location accordingly
                 print("Distances dictionary:", uwb_distances_dict)
                 print(len(distances))
