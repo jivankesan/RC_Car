@@ -50,7 +50,6 @@ if __name__ == "__main__":
                 x0 = target_location
                 print("Target location:", target_location)
                     
-                   
         except KeyboardInterrupt:
             print("\nExiting due to keyboard interrupt.")
         except Exception as e:
