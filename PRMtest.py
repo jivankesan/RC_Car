@@ -3,8 +3,6 @@ from pathplanner import PathPlanner
 from MotorControls import Car
 from MotorEncoder import reader
 
-import pigpio
-import RPi.GPIO
 import serial
 import json
 import pandas as pd
@@ -12,55 +10,34 @@ import csv
 from shapely.geometry import Point, LineString, Polygon
 
 
-def compute_gate_midpoints(csv_file_path):
-    checkpoints = []
+class parsecsv:
+    def parse(self, csv_name):
+        """
+        Parse function that will execute parse a desired CSV file.
+        """
+        base_file_location = './csvfiles'
+        csv_file_path = base_file_location + csv_name + '.csv'
+        
+        array = []
+        return self.parse_csv(csv_file_path, csv_name)
 
-    with open(csv_file_path, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        next(reader)  # Skip the header row
-        rows = list(reader)
 
-        for i in range(0, len(rows), 2):
-            gate_side_1 = rows[i]
-            gate_side_2 = rows[i+1]
-            midpoint_easting = (float(gate_side_1[1]) + float(gate_side_2[1])) / 2
-            midpoint_northing = (float(gate_side_1[2]) + float(gate_side_2[2])) / 2
-            checkpoint = Point(midpoint_easting, midpoint_northing)
-            checkpoints.append(checkpoint)
-
-    return checkpoints
-
-def read_obstacles(csv_file_path):
-    obstacles = []
-    
-    with open(csv_file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            # Create a Point instance using easting and northing, then buffer it
-            point = Point(float(row['easting']), float(row['northing']))
-            buffered_point = point.buffer(float(row['boundingRadius']))
-            obstacles.append(buffered_point)
+    def parse_csv(self, file_path, csv_file_name):
+        """
+        CSV Parse function that attempts to parse through the CSV files.
+        """
+        try:
+            # Use pandas to read the CSV file into a DataFrame
+            df = pd.read_csv(file_path)
             
-    return obstacles
+            # Converting Pandas Datarame to JSON and sending as HTTP Header
+            records_list = df.to_dict(orient='records')
+            
+            # Arrayifying records
+            return self.arrayify_records(records_list, csv_file_name)
 
-def parse_csv_for_points_and_boundary(csv_file_path):
-    points = {}
-    with open(csv_file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            point = Point(float(row['easting']), float(row['northing']))
-            points[row['name']] = point
-
-    # Assuming "origin" is the start point and "finish" is explicitly defined
-    start = points.get("origin", Point(0, 0))
-    finish = points.get("finish", Point(0, 0))  # Default to (0, 0) if not found
-
-    # Define the boundary based on corner points or other logic
-    # Adjust the boundary definition as needed based on your requirements
-    boundary_corners = [points.get(f"corner0{i}", Point(0, 0)) for i in range(1, 5)]
-    boundary = Polygon(boundary_corners)
-
-    return [start, finish, boundary]
+        except FileNotFoundError:
+            print(f"CSV file not found: {file_path}")
 
 
 

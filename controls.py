@@ -1,45 +1,80 @@
-import pygame
-import os
-import sys
+import RPi.GPIO as GPIO
+import time
 
-os.environ["SDL_VIDEODRIVER"] = "dummy" 
-
-class Controller:
+class Car():
     def __init__(self):
-        """Initialize the joystick components"""
-        pygame.init()
-        pygame.joystick.init()
-        if pygame.joystick.get_count() == 0:
-            # No joysticks connected
-            print("No joystick detected")
-            pygame.quit()
-            sys.exit()
-        self.controller = pygame.joystick.Joystick(0)
-        self.controller.init()
-        self.axis_data = {i: 0.0 for i in range(self.controller.get_numaxes())}
+        # Define GPIO pins for motors
         
-        print('Controller initialized')
+        self.PWM_LB = 6
+        self.DIR_LB = 5
+        
+        self.PWM_R = 27
+        self.DIR_R = 17
+        
+        self.PWM_LF = 23
+        self.DIR_LF = 24
 
-    def listen(self):
-        """Listen for events to happen"""
-        for event in pygame.event.get():
-            if event.type == pygame.JOYAXISMOTION:
-                self.axis_data[event.axis] = round(event.value, 2)
-            elif event.type == pygame.QUIT:
-                # Handle the window being closed
-                pygame.quit()
-                sys.exit()
+        self.pins = [self.PWM_R, self.DIR_R, self.PWM_LB, self.DIR_LB, self.PWM_LF, self.DIR_LF]
+        self.pwm_pins = [self.PWM_LB, self.PWM_LF, self.PWM_R]
+        self.dir_L = [self.DIR_LB, self.DIR_LF]
+        self.dir_R = [self.DIR_R]
+ 
 
-        return self.axis_data
+        # Setup GPIO pins
+        for pin in self.pins:
+            GPIO.setup(pin, GPIO.OUT)    
 
-if __name__ == "__main__":
-    ps5_controller = Controller()
+
+    def stop(self):
+        for pin in self.pins:
+            GPIO.output(pin, GPIO.LOW)
     
-    try:
-        while True:
-            os.system('cls' if os.name == 'nt' else 'clear') 
-            axis_data = ps5_controller.listen()
-            print(axis_data)
-    except KeyboardInterrupt:
-        print("\nExiting program.")
-        pygame.quit()
+    def turn_right(self):
+        self.stop()
+        time.sleep(.1)
+        for pin in self.dir_L:
+            GPIO.output(pin, GPIO.HIGH)
+        for pin in self.pwm_pins:
+            GPIO.output(pin, GPIO.HIGH)
+    
+    def turn_left(self):
+        self.stop()
+        time.sleep(.1)
+        for pin in self.dir_R:
+            GPIO.output(pin, GPIO.HIGH)
+        for pin in self.pwm_pins:
+            GPIO.output(pin, GPIO.HIGH)
+
+    def forward(self):
+        self.stop()
+        time.sleep(.1)
+        for pin in self.pwm_pins:
+            GPIO.output(pin, GPIO.HIGH)
+   
+    def reverse(self):
+        self.stop()
+        time.sleep(.1)
+        for pin in self.dir_R:
+            GPIO.output(pin, GPIO.HIGH)
+        for pin in self.dir_L:
+            GPIO.output(pin, GPIO.HIGH)
+        for pin in self.pwm_pins:
+            GPIO.output(pin, GPIO.HIGH)
+        
+        
+    def drive(self, axis_data):
+    
+        # mapping forwards backwards movement
+        if axis_data == 2:  
+            self.turn_left()
+        
+        elif axis_data == 3:  
+            self.turn_right()
+            
+        elif axis_data == 0: 
+            self.forward()
+        
+        elif axis_data == 1: 
+            self.reverse()
+        
+        else: self.stop() 
