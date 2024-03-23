@@ -28,7 +28,6 @@
                 print("Distances dictionary:", uwb_distances_dict)
 '''
 
-
 import serial
 from scipy.optimize import minimize
 import math
@@ -57,7 +56,7 @@ if __name__ == "__main__":
 
     x0 = np.array([0,0])
     points = [(0,0), (10,0), (0,10), (10,10)]
-    uwb_distances_dict = {}
+    
     
     # Adjust port, baud rate, and timeout as needed
     try:
