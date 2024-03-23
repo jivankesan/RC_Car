@@ -49,11 +49,11 @@ if __name__ == "__main__":
                         uwb_distances_dict[tag] = distance
                         distances.append(int(data[2]))
                     # adjust order of points based on the uwb location accordingly
-                    target_location = location_solver(points, distances, x0)
-                    print("Target location:", target_location)
-                    print("Distances dictionary:", uwb_distances_dict)
-                    print("Distances count: ",len(distances))
-                    x0 = target_location
+                target_location = location_solver(points, distances, x0)
+                print("Target location:", target_location)
+                print("Distances dictionary:", uwb_distances_dict)
+                print("Distances count: ",len(distances))
+                x0 = target_location
                 
                     
         except KeyboardInterrupt:
