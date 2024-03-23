@@ -44,15 +44,15 @@ if __name__ == "__main__":
                     data = ser.readline().decode().strip()
                     if data:  # Only print if data is not empty
                         data = data.split(",")
-                        tag = int(data[0])
+                        anchor_id = int(data[0])
                         distance = float(data[1])
-                        uwb_distances_dict[tag] = distance
-                        distances.append(int(data[2]))
+                        uwb_distances_dict[anchor_id] = distance
+                        distances.append(distance)
                     # adjust order of points based on the uwb location accordingly
-                target_location = location_solver(points, distances, x0)
-                print("Target location:", target_location)
                 print("Distances dictionary:", uwb_distances_dict)
                 print("Distances count: ",len(distances))
+                target_location = location_solver(points, distances, x0)
+                print("Target location:", target_location)
                 x0 = target_location
                 
                     
