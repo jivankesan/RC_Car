@@ -74,9 +74,6 @@ if __name__ == "__main__":
                     if data:  # Only print if data is not empty
                         print("Received:", data)
                         data.split(",")
-                        tag = int(data[0])
-                        distance = float(data[1])
-                        uwb_distances_dict[tag] = distance
                     distances.append(int(data[2]))
                     # adjust order of points based on the uwb location accordingly
                 print(len(distances))
