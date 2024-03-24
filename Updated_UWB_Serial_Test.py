@@ -1,24 +1,19 @@
 import serial
+from scipy.optimize import minimize
+import math
 import numpy as np
+    
 from scipy.optimize import minimize
 
-# Define the positions of the UWB anchors
-anchor_positions = [(0, 0), (4, 0), (0, 4), (4, 4)]
-
-def calculate_distances(robot_position):
-    # Calculate distances from the robot to each anchor
-    distances = [np.sqrt((robot_position[0] - anchor[0])**2 + (robot_position[1] - anchor[1])**2) for anchor in anchor_positions]
-    return distances
-
-def location_solver(distances, x0):
-    # Objective function to minimize
+def location_solver(points, distances, x0):
+    # Adjusted objective function to minimize
     def objective_func(X):
         x, y = X
-        error = sum([(np.sqrt((x - anchor[0])**2 + (y - anchor[1])**2) - distance)**2 for anchor, distance in zip(anchor_positions, distances)])
+        error = sum([(distance - ((x - point[0])**2 + (y - point[1])**2)**0.5)**2 for point, distance in zip(points, distances)])
         return error
     
-    # Perform the minimization with the objective function
-    result = minimize(objective_func, x0, method='Nelder-Mead')
+    # Perform the minimization with adjusted objective function
+    result = minimize(objective_func, x0, method='L-BFGS-B')
         
     if result.success:
         # Check if the solution coordinates are reasonable, adjust as necessary
@@ -30,7 +25,11 @@ def location_solver(distances, x0):
         return x0
 
 if __name__ == "__main__":
-    x0 = np.array([0, 0])  # Initial guess for the robot's position
+
+    x0 = np.array([0,0])
+    points = [(0,0), (4,0), (0,4), (4,4)]
+    uwb_distances_dict = {}
+    
     
     # Adjust port, baud rate, and timeout as needed
     try:
@@ -40,30 +39,25 @@ if __name__ == "__main__":
     else:
         try:
             while True:
-                # Read data from the serial port
-                data = ser.readline().decode().strip()
-                if data:  # Only process if data is not empty
-                    data = data.split(",")
-                    if len(data) % 2 != 0:
-                        print("Received incomplete data format. Skipping this iteration.")
-                        continue
-                    robot_position = (float(data[0]), float(data[1]))
-                    distances_dict = {int(data[i]): float(data[i+1]) for i in range(0, len(data), 2)}
-                    
-                    # Ensure distances are sorted based on anchor IDs
-                    distances = [distances_dict[i] for i in sorted(distances_dict.keys())]
-                    
-                    # Print received distances for debugging
-                    print("Distances:", distances)
+                distances = []
+                uwb_distances_dict = {}
+                for i in range(0,4):
+                    # Read data from the serial port
+                    data = ser.readline().decode().strip()
+                    if data:  # Only print if data is not empty
+                        data = data.split(",")
+                        anchor_id = int(data[0])
+                        distance = float(data[1])
+                        uwb_distances_dict[anchor_id] = distance
+                        distances.append(distance)
+                    # adjust order of points based on the uwb location accordingly
+                print("Distances dictionary:", uwb_distances_dict)
+                print("Distances count: ",len(distances))
+                target_location = location_solver(points, distances, x0)
+                print("Target location:", target_location)
+                x0 = target_location
                 
-                    # Solve for the robot's location
-                    target_location = location_solver(distances, x0)
-                    if isinstance(target_location, str):
-                        print("Error:", target_location)
-                    else:
-                        print("Robot's location:", target_location)
-                        # Update initial guess for next iteration
-                        x0 = target_location
+                    
         except KeyboardInterrupt:
             print("\nExiting due to keyboard interrupt.")
         except Exception as e:
