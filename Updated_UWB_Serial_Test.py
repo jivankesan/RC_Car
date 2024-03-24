@@ -3,18 +3,22 @@ from scipy.optimize import minimize
 import math
 import numpy as np
     
+from scipy.optimize import minimize
+
 def location_solver(points, distances, x0):
-    # Adjusted objective function to minimize
+    # Define the objective function (sum of squared errors)
     def objective_func(X):
         x, y = X
-        return sum([((x - point[0])**2 + (y - point[1])**2 - d**2)**2 for point, d in zip(points, distances)])
+        error = sum([(distance - ((x - point[0])**2 + (y - point[1])**2)**0.5)**2 for point, distance in zip(points, distances)])
+        return error
     
-    # Perform the minimization with adjusted objective function
+    # Perform the minimization with the objective function
     result = minimize(objective_func, x0, method='L-BFGS-B')
-        
+    
     if result.success:
-        # Check if the solution coordinates are reasonable, adjust as necessary
-        if result.x[0] >= 0 and result.x[1] >= 0:
+        # Check if the solution coordinates are reasonable
+        x, y = result.x
+        if x >= 0 and y >= 0:
             return result.x
         else:
             return "Solution has non-positive coordinates."
