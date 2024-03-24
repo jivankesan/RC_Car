@@ -51,7 +51,7 @@ if __name__ == "__main__":
                     # adjust order of points based on the uwb location accordingly
                 print("Distances dictionary:", uwb_distances_dict)
                 print("Distances count: ",len(distances))
-                target_location = location_solver(points, distances, x0)
+                target_location = location_solver(points, uwb_distances_dict, x0)
                 print("Target location:", target_location)
                 x0 = target_location
                 
