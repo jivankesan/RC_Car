@@ -28,7 +28,6 @@ if __name__ == "__main__":
     
     Pin1 = 8
     Pin2 = 25
-    RUN_TIME = 60.0
     SAMPLE_TIME = 0.01
     
     pi = pigpio.pi()
@@ -52,14 +51,14 @@ if __name__ == "__main__":
     def distance(point1, point2):
         return math.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
     
-    def calculate_target_yaw(current_yaw, angle_adjustment):
-        target_yaw = normalize_angle(current_yaw + angle_adjustment)
-        return target_yaw
+    def calculate_target_yaw(current_yaw, target_point, current_point):
+        angle_to_target = math.atan2(target_point[1] - current_point[1], target_point[0] - current_point[0]) * 180 / math.pi
+        return normalize_angle(angle_to_target - current_yaw)
     
     try:
         for point in points:
             dist = distance(curr_point, point)
-            target_yaw = calculate_target_yaw(curr_point, point, curr_angle)
+            target_yaw = calculate_target_yaw(curr_angle, point, curr_point)
             
             if target_yaw < 0:
                 car.drive(3)  
