@@ -43,9 +43,12 @@ if __name__ == "__main__":
                 if data:  # Only process if data is not empty
                     data = data.split(",")
                     anchor_id = int(data[0])
-                    distance = float(data[1])
-                    uwb_distances_dict[anchor_id] = distance
-                    distances[anchor_id - 1] = distance  # Reorder distances based on anchor ID
+                    try:
+                        distance = float(data[1].split('\r')[0])  # Remove any trailing characters
+                        uwb_distances_dict[anchor_id] = distance
+                        distances[anchor_id - 1] = distance  # Reorder distances based on anchor ID
+                    except ValueError:
+                        print("Invalid data format:", data)
 
             # Prepare distances in desired order (1, 2, 3, 4)
             distances = [distances[i] for i in range(4)]
