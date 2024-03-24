@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 # Define the positions of the UWB anchors
-anchor_positions = [(0, 0), (10, 0), (0, 10), (10, 10)]
+anchor_positions = [(0, 0), (4, 0), (0, 4), (4, 4)]
 
 def calculate_distances(robot_position):
     # Calculate distances from the robot to each anchor
@@ -44,6 +44,9 @@ if __name__ == "__main__":
                 data = ser.readline().decode().strip()
                 if data:  # Only process if data is not empty
                     data = data.split(",")
+                    if len(data) % 2 != 0:
+                        print("Received incomplete data format. Skipping this iteration.")
+                        continue
                     robot_position = (float(data[0]), float(data[1]))
                     distances_dict = {int(data[i]): float(data[i+1]) for i in range(0, len(data), 2)}
                     
@@ -55,10 +58,12 @@ if __name__ == "__main__":
                 
                     # Solve for the robot's location
                     target_location = location_solver(distances, x0)
-                    print("Robot's location:", target_location)
-                    
-                    # Update initial guess for next iteration
-                    x0 = target_location
+                    if isinstance(target_location, str):
+                        print("Error:", target_location)
+                    else:
+                        print("Robot's location:", target_location)
+                        # Update initial guess for next iteration
+                        x0 = target_location
                     
         except KeyboardInterrupt:
             print("\nExiting due to keyboard interrupt.")
@@ -67,4 +72,3 @@ if __name__ == "__main__":
         finally:
             ser.close()  # Ensure the serial port is closed
             print("Serial port closed.")
-
