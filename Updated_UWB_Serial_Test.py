@@ -1,18 +1,15 @@
 import serial
-from scipy.optimize import minimize
-import math
 import numpy as np
-    
 from scipy.optimize import minimize
 
 def location_solver(points, distances, x0):
-    # Adjusted objective function to minimize
+    # Objective function to minimize
     def objective_func(X):
         x, y = X
         error = sum([(distance - ((x - point[0])**2 + (y - point[1])**2)**0.5)**2 for point, distance in zip(points, distances)])
         return error
     
-    # Perform the minimization with adjusted objective function
+    # Perform the minimization with the objective function
     result = minimize(objective_func, x0, method='L-BFGS-B')
         
     if result.success:
@@ -25,11 +22,8 @@ def location_solver(points, distances, x0):
         return x0
 
 if __name__ == "__main__":
-
-    x0 = np.array([0,0])
-    points = [(0,0), (10,0), (0,10), (10,10)]
-    uwb_distances_dict = {}
-    
+    x0 = np.array([0, 0])
+    points = [(0, 0), (10, 0), (0, 10), (10, 10)]
     
     # Adjust port, baud rate, and timeout as needed
     try:
@@ -40,23 +34,24 @@ if __name__ == "__main__":
         try:
             while True:
                 distances = []
-                uwb_distances_dict = {}
-                for i in range(0,4):
+                for i in range(4):
                     # Read data from the serial port
                     data = ser.readline().decode().strip()
-                    if data:  # Only print if data is not empty
+                    if data:  # Only process if data is not empty
                         data = data.split(",")
                         anchor_id = int(data[0])
                         distance = float(data[1])
-                        uwb_distances_dict[anchor_id] = distance
                         distances.append(distance)
-                    # adjust order of points based on the uwb location accordingly
-                print("Distances dictionary:", uwb_distances_dict)
-                print("Distances count: ",len(distances))
+                
+                # Print received distances for debugging
+                print("Distances:", distances)
+                
+                # Solve for the target location
                 target_location = location_solver(points, distances, x0)
                 print("Target location:", target_location)
-                x0 = target_location
                 
+                # Update initial guess for next iteration
+                x0 = target_location
                     
         except KeyboardInterrupt:
             print("\nExiting due to keyboard interrupt.")
