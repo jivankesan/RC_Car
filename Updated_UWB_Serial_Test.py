@@ -1,11 +1,3 @@
-         
-        except KeyboardInterrupt:
-            print("\nExiting due to keyboard interrupt.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-        finally:
-            ser.close()  # Ensure the serial port is closed
-            print("Serial port closed.")
 import serial
 import numpy as np
 from scipy.optimize import minimize
@@ -72,4 +64,10 @@ if __name__ == "__main__":
                         print("Robot's location:", target_location)
                         # Update initial guess for next iteration
                         x0 = target_location
-           
+        except KeyboardInterrupt:
+            print("\nExiting due to keyboard interrupt.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        finally:
+            ser.close()  # Ensure the serial port is closed
+            print("Serial port closed.")
