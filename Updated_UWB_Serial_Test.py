@@ -44,6 +44,8 @@ if __name__ == "__main__":
                 if len(uwb_distances_dict) == 2:
                     distances = [uwb_distances_dict[anchor_id] for anchor_id in points]
                     target_location = location_solver(list(points.values()), distances, x0)
+                    print(uwb_distances_dict[1])
+                    print(uwb_distances_dict[2])
                     print("Target location:", target_location)
                     if isinstance(target_location, np.ndarray):
                         x0 = target_location  # Update the initial guess for the next iteration
