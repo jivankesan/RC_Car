@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 curr_distance = (p.pulse_count/4685)*0.471234
                 print(curr_distance)
 
-            print('reached: {point}')
+            print(point)
                 
             curr_angle = read_yaw_angle(sensor)
             curr_point = point
