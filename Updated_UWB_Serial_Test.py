@@ -3,10 +3,12 @@ from scipy.optimize import minimize
 import math
 import numpy as np
     
-from scipy.optimize import minimize
+def location_solver(points_dict, distances_dict, x0):
+    # Sort points and distances according to the keys (anchor IDs) in distances_dict
+    sorted_items = sorted(distances_dict.items(), key=lambda item: item[0])
+    points = [points_dict[key] for key, _ in sorted_items if key in points_dict]
+    distances = [distance for _, distance in sorted_items if _ in points_dict]
 
-def location_solver(points, distances, x0):
-    # Adjusted objective function to minimize
     def objective_func(X):
         x, y = X
         error = sum([(distance - ((x - point[0])**2 + (y - point[1])**2)**0.5)**2 for point, distance in zip(points, distances)])
@@ -14,20 +16,16 @@ def location_solver(points, distances, x0):
     
     # Perform the minimization with adjusted objective function
     result = minimize(objective_func, x0, method='L-BFGS-B')
-        
-    if result.success:
-        # Check if the solution coordinates are reasonable, adjust as necessary
-        if result.x[0] >= 0 and result.x[1] >= 0:
-            return result.x
-        else:
-            return "Solution has non-positive coordinates."
+    
+    if result.success and result.x[0] >= 0 and result.x[1] >= 0:
+        return result.x
     else:
         return x0
 
 if __name__ == "__main__":
 
     x0 = np.array([0,0])
-    points = [(0,0), (4,0), (0,4), (4,4)]
+    points = {1:(0,0), 2:(10,0), 3:(0,10),4: (10,10)}
     uwb_distances_dict = {}
     
     
