@@ -19,8 +19,8 @@ def location_solver(points, distances, x0):
 
 if __name__ == "__main__":
     x0 = np.array([0, 0])  # Initial guess for the location
-    points_group_1 = {1: (0, 0), 2: (10, 0)}
-    points_group_2 = {3: (0, 10), 4: (10, 10)}
+    points_group_1 = {1: (0, 0), 2: (7, 0)}
+    points_group_2 = {3: (0, 7), 4: (7, 7)}
 
     try:
         ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
