@@ -8,7 +8,7 @@ class KalmanFilter:
         self.H = H  # Measurement matrix
         self.Q = Q  # Process noise covariance matrix
         self.R = R  # Measurement noise covariance matrix
-        self.x = x0  # Initial state estimate
+        self.x = x0.reshape(-1, 1)  # Initial state estimate as column vector
         self.P = P0  # Initial covariance estimate
 
     def predict(self):
