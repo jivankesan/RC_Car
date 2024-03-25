@@ -8,7 +8,7 @@ class KalmanFilter:
         self.H = H  # Measurement matrix
         self.Q = Q  # Process noise covariance matrix
         self.R = R  # Measurement noise covariance matrix
-        self.x = x0  # Initial state estimate
+        self.x = x0.reshape(-1, 1)  # Initial state estimate (ensure it's a column vector)
         self.P = P0  # Initial covariance estimate
 
     def predict(self):
@@ -19,13 +19,13 @@ class KalmanFilter:
 
     def update(self, z):
         # Calculate innovation
-        y = z - np.dot(self.H, self.x)
+        y = z - np.dot(self.H, self.x).flatten()  # Ensure y is a 1D array
         # Calculate innovation covariance
         S = np.dot(np.dot(self.H, self.P), self.H.T) + self.R
         # Calculate Kalman gain
         K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
         # Update state estimate
-        self.x = self.x + np.dot(K, y)
+        self.x = self.x + np.dot(K, y.reshape(-1, 1))  # Ensure y is a column vector
         # Update covariance estimate
         self.P = np.dot(np.eye(self.P.shape[0]) - np.dot(K, self.H), self.P)
 
