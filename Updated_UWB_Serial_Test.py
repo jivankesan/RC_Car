@@ -2,6 +2,28 @@ import serial
 from scipy.optimize import minimize
 import numpy as np
 
+class KalmanFilter:
+    def __init__(self, A, B, H, Q, R, x0, P0):
+        self.A = A  # State transition matrix
+        self.B = B  # Control input matrix
+        self.H = H  # Measurement matrix
+        self.Q = Q  # Process noise covariance matrix
+        self.R = R  # Measurement noise covariance matrix
+        self.x = x0  # Initial state estimate
+        self.P = P0  # Initial covariance estimate
+
+    def predict(self, u=None):
+        self.x = np.dot(self.A, self.x) + np.dot(self.B, u)
+        self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
+
+    def update(self, z):
+        y = z - np.dot(self.H, self.x)
+        S = np.dot(np.dot(self.H, self.P), self.H.T) + self.R
+        K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
+        self.x = self.x + np.dot(K, y)
+        I = np.eye(self.x.shape[0])
+        self.P = np.dot(np.dot(I - np.dot(K, self.H), self.P), (I - np.dot(K, self.H)).T) + np.dot(np.dot(K, self.R), K.T)
+
 def location_solver(points, distances, x0):
     def objective_func(X):
         x, y = X
@@ -28,6 +50,16 @@ if __name__ == "__main__":
         print("Failed to open serial port. Please check the port and try again.")
     else:
         try:
+            # Kalman filter parameters
+            dt = 1  # Time step
+            A = np.eye(2)  # State transition matrix
+            B = None  # Control input matrix
+            H = np.eye(2)  # Measurement matrix
+            Q = 0.01 * np.eye(2)  # Process noise covariance matrix
+            R = 0.1 * np.eye(2)  # Measurement noise covariance matrix
+            P0 = 0.1 * np.eye(2)  # Initial covariance estimate
+            kf = KalmanFilter(A, B, H, Q, R, x0, P0)
+
             while True:
                 uwb_distances_dict = {}
                 for _ in range(4):
@@ -37,15 +69,23 @@ if __name__ == "__main__":
                         uwb_distances_dict[anchor_id] = distance
 
                 if len(uwb_distances_dict) == 4:
+                    # Filter UWB readings using Kalman filter
+                    z = np.array(list(uwb_distances_dict.values())).reshape(-1, 1)
+                    kf.predict()
+                    kf.update(z)
+
+                    filtered_distances = kf.x.flatten()
+                    print("Filtered distances:", filtered_distances)
+
                     # Solve using first two points and distances
-                    distances1 = [uwb_distances_dict[id] for id in points_group_1]
+                    distances1 = filtered_distances[:2]
                     solution1 = location_solver(list(points_group_1.values()), distances1, x0)
                     
                     print(distances1)
                     print(solution1)
                     
                     # Solve using next two points and distances
-                    distances2 = [uwb_distances_dict[id] for id in points_group_2]
+                    distances2 = filtered_distances[2:]
                     solution2 = location_solver(list(points_group_2.values()), distances2, x0)
 
                     print(distances2)
