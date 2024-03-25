@@ -28,6 +28,8 @@ class KalmanFilter:
         K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
         # Update state estimate
         self.x = self.x + np.dot(K, y)
+        # Ensure that self.x remains a column vector
+        self.x = self.x.reshape(-1, 1)
         # Update covariance estimate
         self.P = np.dot(np.eye(self.P.shape[0]) - np.dot(K, self.H), self.P)
 
