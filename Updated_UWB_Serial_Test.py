@@ -1,3 +1,7 @@
+import serial
+from scipy.optimize import minimize
+import numpy as np  # Import NumPy here
+
 class KalmanFilter:
     def __init__(self, A, H, Q, R, x0, P0):
         self.A = A  # State transition matrix
