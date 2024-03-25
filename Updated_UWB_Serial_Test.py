@@ -80,7 +80,7 @@ if __name__ == "__main__":
                     predicted_state, predicted_covariance = kf.predict()
                     kf.update(np.array(list(uwb_distances_dict.values())).reshape(-1, 1))
 
-                    filtered_distances = predicted_state.flatten()
+                    filtered_distances = predicted_state.ravel()
                     print("Filtered distances:", filtered_distances)
 
                     # Solve using first two points and distances
