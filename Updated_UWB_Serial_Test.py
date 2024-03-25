@@ -61,8 +61,8 @@ if __name__ == "__main__":
             dt = 1  # Time step
             A = np.eye(2)  # State transition matrix (identity matrix since there's no control input)
             H = np.eye(2)  # Measurement matrix
-            Q = 0.01 * np.eye(2)  # Process noise covariance matrix
-            R = 0.1 * np.eye(2)  # Measurement noise covariance matrix
+            Q = 0.001 * np.eye(2)  # Adjust the values as needed
+            R = 0.5 * np.eye(2)  # Measurement noise covariance matrix
             P0 = 0.1 * np.eye(2)  # Initial covariance estimate
             kf = KalmanFilter(A, H, Q, R, x0, P0)
 
