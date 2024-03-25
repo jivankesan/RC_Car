@@ -16,6 +16,7 @@ class KalmanFilter:
         self.x = np.dot(self.A, self.x)
         # Predict covariance
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
+        return self.x, self.P  # Return the predicted state and covariance
 
     def update(self, z):
         # Calculate predicted measurement
@@ -76,11 +77,10 @@ if __name__ == "__main__":
 
                 if len(uwb_distances_dict) == 4:
                     # Filter UWB readings using Kalman filter
-                    z = np.array(list(uwb_distances_dict.values())).reshape(-1, 1)
-                    kf.predict()
-                    kf.update(z)
+                    predicted_state, predicted_covariance = kf.predict()
+                    kf.update(np.array(list(uwb_distances_dict.values())).reshape(-1, 1))
 
-                    filtered_distances = kf.x.flatten()
+                    filtered_distances = predicted_state.flatten()
                     print("Filtered distances:", filtered_distances)
 
                     # Solve using first two points and distances
@@ -114,4 +114,5 @@ if __name__ == "__main__":
         finally:
             ser.close()
             print("Serial port closed.")
+
 
