@@ -3,30 +3,31 @@ from scipy.optimize import minimize
 import numpy as np
 
 class KalmanFilter:
-    def __init__(self, A, B, H, Q, R, x0, P0):
+    def __init__(self, A, H, Q, R, x0, P0):
         self.A = A  # State transition matrix
-        self.B = B  # Control input matrix
         self.H = H  # Measurement matrix
         self.Q = Q  # Process noise covariance matrix
         self.R = R  # Measurement noise covariance matrix
         self.x = x0  # Initial state estimate
         self.P = P0  # Initial covariance estimate
 
-    def predict(self, u=None):
-        if self.B is not None:
-            self.x = np.dot(self.A, self.x) + np.dot(self.B, u)
-        else:
-            self.x = np.dot(self.A, self.x)
+    def predict(self):
+        # Predict state
+        self.x = np.dot(self.A, self.x)
+        # Predict covariance
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
 
     def update(self, z):
+        # Calculate innovation
         y = z - np.dot(self.H, self.x)
+        # Calculate innovation covariance
         S = np.dot(np.dot(self.H, self.P), self.H.T) + self.R
+        # Calculate Kalman gain
         K = np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
+        # Update state estimate
         self.x = self.x + np.dot(K, y)
-        I = np.eye(self.x.shape[0])
-        self.P = np.dot(np.dot(I - np.dot(K, self.H), self.P), (I - np.dot(K, self.H)).T) + np.dot(np.dot(K, self.R), K.T)
-
+        # Update covariance estimate
+        self.P = np.dot(np.eye(self.P.shape[0]) - np.dot(K, self.H), self.P)
 
 def location_solver(points, distances, x0):
     def objective_func(X):
@@ -56,13 +57,12 @@ if __name__ == "__main__":
         try:
             # Kalman filter parameters
             dt = 1  # Time step
-            A = np.eye(2)  # State transition matrix
-            B = None  # Control input matrix
+            A = np.eye(2)  # State transition matrix (identity matrix since there's no control input)
             H = np.eye(2)  # Measurement matrix
             Q = 0.01 * np.eye(2)  # Process noise covariance matrix
             R = 0.1 * np.eye(2)  # Measurement noise covariance matrix
             P0 = 0.1 * np.eye(2)  # Initial covariance estimate
-            kf = KalmanFilter(A, B, H, Q, R, x0, P0)
+            kf = KalmanFilter(A, H, Q, R, x0, P0)
 
             while True:
                 uwb_distances_dict = {}
