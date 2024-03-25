@@ -18,8 +18,10 @@ class KalmanFilter:
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
 
     def update(self, z):
+        # Calculate predicted measurement
+        z_pred = np.dot(self.H, self.x)
         # Calculate innovation
-        y = z - np.dot(self.H, self.x)
+        y = z - z_pred
         # Calculate innovation covariance
         S = np.dot(np.dot(self.H, self.P), self.H.T) + self.R
         # Calculate Kalman gain
