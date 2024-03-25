@@ -114,5 +114,3 @@ if __name__ == "__main__":
         finally:
             ser.close()
             print("Serial port closed.")
-
-
