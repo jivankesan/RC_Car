@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
                         final_solution = (solution1 + solution2) / 2
                         print("Final target location:", final_solution)
-                        x0 = final_solution.flatten()  # Update the initial guess
+                        x0 = np.array(final_solution).reshape(-1)  # Update the initial guess
                     else:
                         print("Could not compute a valid location for one of the groups.")
                 else:
