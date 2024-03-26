@@ -59,10 +59,10 @@ if __name__ == "__main__":
                     solution1 = location_solver(list(points_group_1.values()), distances1, x0)
                     solution2 = location_solver(list(points_group_2.values()), distances2, x0)
 
-                    print("Distances Group 1 (Filtered):", distances1)
-                    print("Solution Group 1:", solution1)
-                    print("Distances Group 2 (Filtered):", distances2)
-                    print("Solution Group 2:", solution2)
+                    #print("Distances Group 1 (Filtered):", distances1)
+                    #print("Solution Group 1:", solution1)
+                    #print("Distances Group 2 (Filtered):", distances2)
+                    #print("Solution Group 2:", solution2)
                     
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
                         final_solution = (solution1 + solution2) / 2
