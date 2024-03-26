@@ -2,7 +2,7 @@ import serial
 from scipy.optimize import minimize
 import numpy as np
 
-def reject_outliers(distances, num_previous_values=5, threshold_factor=2):
+def reject_outliers(distances, num_previous_values=5, threshold_factor=0.7):
     filtered_distances = []
     for i, dist in enumerate(distances):
         if i < num_previous_values:
