@@ -41,15 +41,15 @@ if __name__ == "__main__":
                     distances1 = [uwb_distances_dict[id] for id in points_group_1]
                     solution1 = location_solver(list(points_group_1.values()), distances1, x0)
                     
-                    print(distances1)
-                    print(solution1)
+                    #print(distances1)
+                    #print(solution1)
                     
                     # Solve using next two points and distances
                     distances2 = [uwb_distances_dict[id] for id in points_group_2]
                     solution2 = location_solver(list(points_group_2.values()), distances2, x0)
 
-                    print(distances2)
-                    print(solution2)
+                    #print(distances2)
+                    #print(solution2)
                     
                     # Calculate the average of the solutions
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
