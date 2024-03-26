@@ -19,9 +19,9 @@ def reject_outliers(distances, num_previous_values=5, threshold_factor=2):
     
     return filtered_distances
 
+
 def location_solver(points, distances, x0):
     def objective_func(X):
-        print("X:", X)  # Add this line for debugging
         x, y = X
         error = sum([(distance - np.sqrt((x - point[0])**2 + (y - point[1])**2))**2 for point, distance in zip(points, distances)])
         return error
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
                         final_solution = (solution1 + solution2) / 2
                         print("Final target location:", final_solution)
-                        x0 = final_solution 
+                        x0 = final_solution  
                     else:
                         print("Could not compute a valid location for one of the groups.")
                 else:
