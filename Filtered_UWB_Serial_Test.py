@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
                         final_solution = (solution1 + solution2) / 2
-                        #print("Final target location:", final_solution)
+                        print("Final target location:", final_solution)
 
                         last_5_target_locations.append(final_solution)
 
