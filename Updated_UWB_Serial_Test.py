@@ -1,8 +1,9 @@
 import serial
 from scipy.optimize import minimize
 import numpy as np
+from queue import Queue
 
-def reject_outliers(distances, num_previous_values=5, threshold_factor=0.7):
+def reject_outliers(distances, num_previous_values=5, threshold_factor=2):
     filtered_distances = []
     for i, dist in enumerate(distances):
         if i < num_previous_values:
@@ -33,9 +34,10 @@ def location_solver(points, distances, x0):
         return x0
 
 if __name__ == "__main__":
-    x0 = np.array([0, 0]) 
+    x0 = np.array([0, 0])  
     points_group_1 = {1: (0, 0), 2: (7, 0)}
     points_group_2 = {3: (0, 7), 4: (7, 7)}
+    last_5_target_locations = Queue(maxsize=5)
 
     try:
         ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
@@ -57,15 +59,18 @@ if __name__ == "__main__":
 
                     solution1 = location_solver(list(points_group_1.values()), distances1, x0)
                     solution2 = location_solver(list(points_group_2.values()), distances2, x0)
-
-                    print("Distances Group 1 (Filtered):", distances1)
-                    print("Solution Group 1:", solution1)
-                    print("Distances Group 2 (Filtered):", distances2)
-                    print("Solution Group 2:", solution2)
                     
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
                         final_solution = (solution1 + solution2) / 2
                         print("Final target location:", final_solution)
+                        last_5_target_locations.put(final_solution)
+                        
+                        if last_5_target_locations.full():
+                            last_5_target_locations.get()
+                            
+                        running_avg = np.mean(list(last_5_target_locations.queue), axis=0)
+                        print("Running average of last 5 target locations:", running_avg)
+                        
                         x0 = final_solution 
                     else:
                         print("Could not compute a valid location for one of the groups.")
@@ -79,3 +84,4 @@ if __name__ == "__main__":
         finally:
             ser.close()
             print("Serial port closed.")
+
