@@ -64,11 +64,15 @@ if __name__ == "__main__":
                     print("Solution Group 2:", solution2)
                     
                     if isinstance(solution1, np.ndarray) and isinstance(solution2, np.ndarray):
+                        solution1 = solution1.reshape(-1, 1) 
+                        solution2 = solution2.reshape(-1, 1) 
                         final_solution = (solution1 + solution2) / 2
+                        final_solution = final_solution.flatten() 
                         print("Final target location:", final_solution)
                         x0 = final_solution 
                     else:
                         print("Could not compute a valid location for one of the groups.")
+
                 else:
                     print("Waiting for distances from all UWB sensors.")
 
