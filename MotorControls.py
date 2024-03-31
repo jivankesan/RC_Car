@@ -42,7 +42,7 @@ if __name__ == "__main__":
     pi2 = pigpio.pi()
     p = MotorEncoder.reader(pi, Pin1)
     
-    points = [(0.0,6.20)]
+    points = [(6.20,0.0)]
     
     car = Car()
     curr_point = (0,0)
