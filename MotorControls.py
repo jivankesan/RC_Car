@@ -36,17 +36,17 @@ if __name__ == "__main__":
         return normalize_angle(angle_to_target - current_yaw)
     
     try:
-        points = [(0.1, 0.1), (0.0, 0.0), (0.2, 0.2)]
+        points = [(0.1, 0.1), (0.2, 0.2), (0.2, 0.5)]
         
         for point in points:
             target_yaw = calculate_target_yaw(curr_angle, point, curr_point)
             
-            turn_dir = abs(curr_angle - target_yaw)
-            
-            if turn_dir > 180:
+            if target_yaw < -90:  # Turn left for 180 degrees left
+                car.drive(2)  # Turn left
+            elif target_yaw > 90:  # Turn right for 180 degrees right
                 car.drive(3)  # Turn right
             else:
-                car.drive(2)  # Turn left
+                car.stop()  # No turning needed
             
             while True:
                 current_yaw = read_yaw_angle(sensor)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
             pi = pigpio.pi()
             p = MotorEncoder.reader(pi, Pin1)
             p.pulse_count = 0
-            car.drive(0)
+            car.drive(1)  # Drive forward
             while p.pulse_count < 4685 * (dist / 0.471234):
                 curr_distance = (p.pulse_count / 4685) * 0.471234
                 print(curr_distance)
@@ -76,5 +76,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         car.stop()
         GPIO.cleanup()  # Cleanup GPIO when program is interrupted
-
-      
