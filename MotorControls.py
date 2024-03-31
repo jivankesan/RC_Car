@@ -41,7 +41,9 @@ if __name__ == "__main__":
         for point in points:
             target_yaw = calculate_target_yaw(curr_angle, point, curr_point)
             
-            if target_yaw < 0:
+            turn_dir = abs(curr_angle - target_yaw)
+            
+            if turn_dir > 180:
                 car.drive(3)  # Turn right
             else:
                 car.drive(2)  # Turn left
