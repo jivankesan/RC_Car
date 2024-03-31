@@ -1,16 +1,11 @@
 import RPi.GPIO as GPIO
-import controls
 import time
-import Gyroscope
-import pigpio
-import MotorEncoder
-import serial
 import math
 import board
 import adafruit_bno055
-
 from motors import Car
-
+import pigpio
+import MotorEncoder
 
 if __name__ == "__main__":
     
@@ -27,25 +22,10 @@ if __name__ == "__main__":
     sensor = adafruit_bno055.BNO055_I2C(i2c) 
     
     Pin1 = 8
-    Pin2 = 25
     SAMPLE_TIME = 0.01
     
-    pi = pigpio.pi()
-    p = MotorEncoder.reader(pi, Pin1)
     car = Car()
-    
-    ser = serial.Serial('/dev/ttyUSB0', 115200)
-    
-    dist = 20
-
-    pi = pigpio.pi()
-    pi2 = pigpio.pi()
-    p = MotorEncoder.reader(pi, Pin1)
-    
-    points = [(0.1,0.1), (0.0,0.0), (0.2,0.2)]
-    
-    car = Car()
-    curr_point = (0,0)
+    curr_point = (0, 0)
     curr_angle = read_yaw_angle(sensor) 
     
     def distance(point1, point2):
@@ -56,14 +36,15 @@ if __name__ == "__main__":
         return normalize_angle(angle_to_target - current_yaw)
     
     try:
+        points = [(0.1, 0.1), (0.0, 0.0), (0.2, 0.2)]
+        
         for point in points:
-            dist = distance(curr_point, point)
             target_yaw = calculate_target_yaw(curr_angle, point, curr_point)
             
             if target_yaw < 0:
-                car.drive(3)  
+                car.drive(3)  # Turn right
             else:
-                car.drive(2) 
+                car.drive(2)  # Turn left
             
             while True:
                 current_yaw = read_yaw_angle(sensor)
@@ -74,25 +55,24 @@ if __name__ == "__main__":
                     break  # Exit loop once close to the target yaw
                     
             car.stop()
-                   
-            p.pulse_count=0 
-                
+            
+            dist = distance(curr_point, point)
+            pi = pigpio.pi()
+            p = MotorEncoder.reader(pi, Pin1)
+            p.pulse_count = 0
             car.drive(0)
-            while (p.pulse_count < 4685*(dist/0.471234)):
-                curr_distance = (p.pulse_count/4685)*0.471234
+            while p.pulse_count < 4685 * (dist / 0.471234):
+                curr_distance = (p.pulse_count / 4685) * 0.471234
                 print(curr_distance)
-
-            print(point)
-                
+            
             curr_angle = read_yaw_angle(sensor)
             curr_point = point
             
         car.stop()
-        print(points[-1])
+        print("Reached the final destination")
 
     except KeyboardInterrupt:
         car.stop()
-    # Cleanup GPIO when program is interrupted
-        GPIO.cleanup() 
-    
+        GPIO.cleanup()  # Cleanup GPIO when program is interrupted
+
       
