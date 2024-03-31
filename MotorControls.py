@@ -66,3 +66,16 @@ if __name__ == "__main__":
             while (p.pulse_count < 4685*(dist/0.471234)):
                 curr_distance = (p.pulse_count/4685)*0.471234
                 print(curr_distance)
+            
+            print(point)
+                
+            curr_angle = read_yaw_angle(sensor)
+            curr_point = point
+            
+        car.stop()
+        print(points[-1])
+
+    except KeyboardInterrupt:
+        car.stop()
+        # Cleanup GPIO when program is interrupted
+        GPIO.cleanup()
