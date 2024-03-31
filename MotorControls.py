@@ -13,7 +13,7 @@ def read_yaw_angle(sensor):
     return None
 
 def normalize_angle(angle):
-    return angle % 360
+    return (angle + 180) % 360 - 180
 
 def calculate_target_yaw(current_yaw, target_point, current_point):
     angle_to_target = math.atan2(target_point[1] - current_point[1], target_point[0] - current_point[0]) * 180 / math.pi
@@ -66,16 +66,3 @@ if __name__ == "__main__":
             while (p.pulse_count < 4685*(dist/0.471234)):
                 curr_distance = (p.pulse_count/4685)*0.471234
                 print(curr_distance)
-
-            print(point)
-                
-            curr_angle = read_yaw_angle(sensor)
-            curr_point = point
-            
-        car.stop()
-        print(points[-1])
-
-    except KeyboardInterrupt:
-        car.stop()
-        # Cleanup GPIO when program is interrupted
-        GPIO.cleanup()
