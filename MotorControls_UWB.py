@@ -42,7 +42,7 @@ if __name__ == "__main__":
     pi2 = pigpio.pi()
     p = MotorEncoder.reader(pi, Pin1)
     
-    points = [(0.0,6.20)]
+    points = [(0.3,0.3),(1.2,0.6),(1.5,0.6),(2.1,1.8),(2.1,2.1),(2.4,2.4), (0.6, 2.4), (3.0, 2.7), (0.3, 0.3)]
     
     car = Car()
     curr_point = (0,0)
@@ -95,4 +95,3 @@ if __name__ == "__main__":
     # Cleanup GPIO when program is interrupted
         GPIO.cleanup() 
     
-      
