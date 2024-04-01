@@ -32,7 +32,7 @@ if __name__ == "__main__":
     p = MotorEncoder.reader(pi, Pin1)
     car = Car()
     
-    points = [(0.3,0.3),(1.2,0.6)]
+    points = [(1.984, -0.5875),(4.6645, 1.402)]
     
     curr_point = (0,0)
     curr_angle = read_yaw_angle(sensor) 
